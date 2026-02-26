@@ -1,0 +1,19 @@
+# Runtime and logs
+logs/
+*.log
+npm-debug.log*
+
+# Dependencies
+node_modules/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Local build/test outputs
+dist/
+build/
+coverage/
+.tmp/
+tmp/

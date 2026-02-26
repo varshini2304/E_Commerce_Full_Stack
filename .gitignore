@@ -1,0 +1,34 @@
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs
+*.log
+logs/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build output
+.dist/
+dist/
+build/
+coverage/
+
+# Frontend local env overrides
+ui/.env
+ui/.env.*
+!ui/.env.example
+
+# Backend env overrides
+server/.env
+server/.env.*
+!server/.env.example
