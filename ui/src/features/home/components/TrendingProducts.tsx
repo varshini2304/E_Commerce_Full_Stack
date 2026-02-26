@@ -7,10 +7,17 @@ interface TrendingProductsProps {
   products: ProductData[];
   actionLabel: string;
   compact?: boolean;
+  onProductAction?: (product: ProductData) => void;
 }
 
 const TrendingProducts = memo(
-  ({ header, products, actionLabel, compact = true }: TrendingProductsProps) => (
+  ({
+    header,
+    products,
+    actionLabel,
+    compact = true,
+    onProductAction,
+  }: TrendingProductsProps) => (
     <section className="space-y-6">
       <SectionHeader title={header.title} subtitle={header.subtitle} />
       <div
@@ -22,6 +29,7 @@ const TrendingProducts = memo(
           <ProductCard
             actionLabel={actionLabel}
             key={product.id}
+            onAction={onProductAction}
             product={product}
             variant={compact ? "compact" : "default"}
           />

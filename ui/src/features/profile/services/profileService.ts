@@ -1,6 +1,6 @@
 import { apiClient } from "../../../services/apiClient";
 import { API_ENDPOINTS } from "../../../shared/constants/config";
-import { HomeApiResponse } from "../../../types/home";
+import { ProfilePageResponse } from "../../../types/profile";
 
 interface ApiResponse<T> {
   success: boolean;
@@ -8,9 +8,9 @@ interface ApiResponse<T> {
   data: T;
 }
 
-export const getHomeData = async (): Promise<HomeApiResponse> => {
-  const response = await apiClient.get<HomeApiResponse | ApiResponse<HomeApiResponse>>(
-    API_ENDPOINTS.home,
+export const getProfilePageData = async (): Promise<ProfilePageResponse> => {
+  const response = await apiClient.get<ProfilePageResponse | ApiResponse<ProfilePageResponse>>(
+    API_ENDPOINTS.profilePage,
   );
 
   if ("data" in response.data && "success" in response.data) {

@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import { connectDB } from "./src/config/db.js";
 import { Banner } from "./src/models/Banner.js";
 import { Category } from "./src/models/Category.js";
+import { Order } from "./src/models/Order.js";
 import { Product } from "./src/models/Product.js";
 import { User } from "./src/models/User.js";
 
@@ -12,22 +13,22 @@ const categories = [
   {
     name: "Electronics",
     slug: "electronics",
-    icon: "https://cdn.yoursite.com/icons/electronics.png",
-    image: "https://cdn.yoursite.com/categories/electronics-banner.jpg",
+    icon: "https://placehold.co/128x128/1f4690/ffffff?text=Electronics",
+    image: "https://picsum.photos/seed/category-electronics/1200/700",
     description: "Latest gadgets and electronics",
   },
   {
     name: "Fashion",
     slug: "fashion",
-    icon: "https://cdn.yoursite.com/icons/fashion.png",
-    image: "https://cdn.yoursite.com/categories/fashion-banner.jpg",
+    icon: "https://placehold.co/128x128/f47f74/ffffff?text=Fashion",
+    image: "https://picsum.photos/seed/category-fashion/1200/700",
     description: "Trending fashion and clothing",
   },
   {
     name: "Home & Kitchen",
     slug: "home-kitchen",
-    icon: "https://cdn.yoursite.com/icons/home.png",
-    image: "https://cdn.yoursite.com/categories/home-banner.jpg",
+    icon: "https://placehold.co/128x128/6e7bb6/ffffff?text=Home",
+    image: "https://picsum.photos/seed/category-home-kitchen/1200/700",
     description: "Essentials for your home",
   },
 ];
@@ -44,12 +45,12 @@ const products = [
     stock: 25,
     sku: "APL-IP15P-001",
     categorySlug: "electronics",
-    thumbnail: "https://cdn.yoursite.com/products/iphone15-thumb.jpg",
+    thumbnail: "https://picsum.photos/seed/product-iphone15-thumb/900/900",
     images: [
-      "https://cdn.yoursite.com/products/iphone15-1.jpg",
-      "https://cdn.yoursite.com/products/iphone15-2.jpg",
+      "https://picsum.photos/seed/product-iphone15-1/1400/1000",
+      "https://picsum.photos/seed/product-iphone15-2/1400/1000",
     ],
-    icon: "https://cdn.yoursite.com/icons/iphone-icon.png",
+    icon: "https://placehold.co/128x128/242b5e/ffffff?text=Phone",
     tags: ["smartphone", "apple", "mobile"],
     ratingsAverage: 4.8,
     ratingsCount: 120,
@@ -67,12 +68,12 @@ const products = [
     stock: 40,
     sku: "NK-AMX-002",
     categorySlug: "fashion",
-    thumbnail: "https://cdn.yoursite.com/products/nike-thumb.jpg",
+    thumbnail: "https://picsum.photos/seed/product-nike-thumb/900/900",
     images: [
-      "https://cdn.yoursite.com/products/nike-1.jpg",
-      "https://cdn.yoursite.com/products/nike-2.jpg",
+      "https://picsum.photos/seed/product-nike-1/1400/1000",
+      "https://picsum.photos/seed/product-nike-2/1400/1000",
     ],
-    icon: "https://cdn.yoursite.com/icons/shoe-icon.png",
+    icon: "https://placehold.co/128x128/161f46/ffffff?text=Shoes",
     tags: ["shoes", "sports"],
     ratingsAverage: 4.5,
     ratingsCount: 85,
@@ -90,9 +91,9 @@ const products = [
     stock: 12,
     sku: "AER-HDP-003",
     categorySlug: "electronics",
-    thumbnail: "https://cdn.yoursite.com/products/headphone-thumb.jpg",
-    images: ["https://cdn.yoursite.com/products/headphone-1.jpg"],
-    icon: "https://cdn.yoursite.com/icons/headphone-icon.png",
+    thumbnail: "https://picsum.photos/seed/product-headphone-thumb/900/900",
+    images: ["https://picsum.photos/seed/product-headphone-1/1400/1000"],
+    icon: "https://placehold.co/128x128/33407a/ffffff?text=Audio",
     tags: ["audio", "headphones"],
     ratingsAverage: 4.7,
     ratingsCount: 210,
@@ -110,9 +111,9 @@ const products = [
     stock: 51,
     sku: "CLD-MUG-004",
     categorySlug: "home-kitchen",
-    thumbnail: "https://cdn.yoursite.com/products/mug-thumb.jpg",
-    images: ["https://cdn.yoursite.com/products/mug-1.jpg"],
-    icon: "https://cdn.yoursite.com/icons/mug-icon.png",
+    thumbnail: "https://picsum.photos/seed/product-mug-thumb/900/900",
+    images: ["https://picsum.photos/seed/product-mug-1/1400/1000"],
+    icon: "https://placehold.co/128x128/5174a4/ffffff?text=Mug",
     tags: ["mug", "kitchen"],
     ratingsAverage: 4.3,
     ratingsCount: 66,
@@ -121,20 +122,90 @@ const products = [
   },
 ];
 
-const homeBanners = [
+const heroBanners = [
   {
     title: "Mega Electronics Sale",
     subtitle: "Up to 50% OFF",
-    image: "https://cdn.yoursite.com/banners/electronics-sale.jpg",
+    description: "Grab the best gadgets at unbeatable prices.",
+    image: "https://picsum.photos/seed/banner-hero-electronics/1600/700",
+    mobileImage: "https://picsum.photos/seed/banner-hero-electronics-mobile/900/1200",
+    icon: "https://placehold.co/128x128/f5a623/ffffff?text=Sale",
     link: "/category/electronics",
     type: "hero",
+    position: 1,
+    isActive: true,
   },
   {
-    title: "Fashion Week Deals",
-    subtitle: "Trendy Styles 30% OFF",
-    image: "https://cdn.yoursite.com/banners/fashion-sale.jpg",
+    title: "Fashion Fest 2026",
+    subtitle: "Flat 30% OFF",
+    description: "Trending styles curated for you.",
+    image: "https://picsum.photos/seed/banner-hero-fashion/1600/700",
+    mobileImage: "https://picsum.photos/seed/banner-hero-fashion-mobile/900/1200",
+    icon: "https://placehold.co/128x128/f47f74/ffffff?text=Style",
     link: "/category/fashion",
+    type: "hero",
+    position: 2,
+    isActive: true,
+  },
+];
+
+const promoBanners = [
+  {
+    title: "Smart Home Essentials",
+    subtitle: "Upgrade Your Living",
+    description: "Top-rated home appliances at special prices.",
+    image: "https://picsum.photos/seed/banner-promo-home/1600/700",
+    mobileImage: "https://picsum.photos/seed/banner-promo-home-mobile/900/1200",
+    icon: "https://placehold.co/128x128/3f5b91/ffffff?text=Home",
+    link: "/category/home-kitchen",
     type: "promo",
+    position: 1,
+    isActive: true,
+  },
+];
+
+const categoryBanners = [
+  {
+    title: "Electronics Deals",
+    subtitle: "New Arrivals Everyday",
+    description: "Explore latest gadgets.",
+    image: "https://picsum.photos/seed/banner-category-electronics/1600/700",
+    mobileImage: "https://picsum.photos/seed/banner-category-electronics-mobile/900/1200",
+    icon: "https://placehold.co/128x128/1f4690/ffffff?text=Tech",
+    link: "/category/electronics",
+    type: "category",
+    position: 1,
+    isActive: true,
+  },
+];
+
+const offerBanners = [
+  {
+    title: "Weekend Special Offer",
+    subtitle: "Extra 10% OFF",
+    description: "Use code: WEEKEND10",
+    image: "https://picsum.photos/seed/banner-offer-weekend/1600/700",
+    mobileImage: "https://picsum.photos/seed/banner-offer-weekend-mobile/900/1200",
+    icon: "https://placehold.co/128x128/d15a48/ffffff?text=Offer",
+    link: "/offers",
+    type: "offer",
+    position: 1,
+    isActive: true,
+  },
+];
+
+const appBanners = [
+  {
+    title: "Download Our App",
+    subtitle: "Shop Faster & Smarter",
+    description: "Available on iOS & Android.",
+    image: "https://picsum.photos/seed/banner-app-download/1600/700",
+    mobileImage: "https://picsum.photos/seed/banner-app-download-mobile/900/1200",
+    icon: "https://placehold.co/128x128/4a63b4/ffffff?text=App",
+    link: "/download-app",
+    type: "app",
+    position: 1,
+    isActive: true,
   },
 ];
 
@@ -167,17 +238,79 @@ const seed = async () => {
     Product.deleteMany({}),
     Banner.deleteMany({}),
     User.deleteMany({}),
+    Order.deleteMany({}),
   ]);
 
   const hashedPassword = await bcrypt.hash("Password@123", 10);
   const seededUsers = users.map((user) => ({ ...user, password: hashedPassword }));
+  const banners = [
+    ...heroBanners,
+    ...promoBanners,
+    ...categoryBanners,
+    ...offerBanners,
+    ...appBanners,
+  ];
 
-  await Promise.all([
+  const [seededCategories, seededProducts, seededBanners, insertedUsers] = await Promise.all([
     Category.insertMany(categories),
     Product.insertMany(products),
-    Banner.insertMany(homeBanners),
+    Banner.insertMany(banners),
     User.insertMany(seededUsers),
   ]);
+
+  void seededCategories;
+  void seededBanners;
+
+  const customer = insertedUsers.find((user) => user.role === "customer");
+
+  if (customer && seededProducts.length >= 3) {
+    const [productA, productB, productC] = seededProducts;
+    const seededOrders = [
+      {
+        userId: customer._id,
+        items: [
+          {
+            productId: productA._id,
+            name: productA.name,
+            thumbnail: productA.thumbnail,
+            quantity: 1,
+            price: productA.finalPrice,
+          },
+          {
+            productId: productB._id,
+            name: productB.name,
+            thumbnail: productB.thumbnail,
+            quantity: 1,
+            price: productB.finalPrice,
+          },
+        ],
+        subtotal: productA.finalPrice + productB.finalPrice,
+        total: productA.finalPrice + productB.finalPrice,
+        status: "delivered",
+        paymentStatus: "paid",
+        isPaid: true,
+      },
+      {
+        userId: customer._id,
+        items: [
+          {
+            productId: productC._id,
+            name: productC.name,
+            thumbnail: productC.thumbnail,
+            quantity: 1,
+            price: productC.finalPrice,
+          },
+        ],
+        subtotal: productC.finalPrice,
+        total: productC.finalPrice,
+        status: "processing",
+        paymentStatus: "pending",
+        isPaid: false,
+      },
+    ];
+
+    await Order.insertMany(seededOrders);
+  }
 
   process.stdout.write("Seed completed successfully\n");
   process.exit(0);

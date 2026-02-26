@@ -6,6 +6,8 @@ import {
   UI_LIMITS,
   UI_MESSAGES,
 } from "../../../shared/constants/config";
+import { ProductData } from "../../../types/home";
+import { addProductToCart } from "../../cart/cartStorage";
 
 const HeroSection = lazy(() => import("./HeroSection"));
 const CategorySection = lazy(() => import("./CategorySection"));
@@ -18,6 +20,10 @@ const SiteFooter = lazy(() => import("./SiteFooter"));
 
 const HomePage = () => {
   const { data, isLoading, isError } = useHomeData();
+  const handleAddToCart = (product: ProductData) => {
+    addProductToCart(product);
+    window.location.href = "/cart";
+  };
 
   if (isLoading) {
     return <Loader />;
@@ -42,7 +48,7 @@ const HomePage = () => {
   const trendingProducts = data.trendingProducts ?? [];
 
   return (
-    <div className={`mx-auto w-full ${APP_CONFIG.maxContainerWidthClass} px-4 sm:px-6 lg:px-8`}>
+    <div className="w-full h-screen px-4 sm:px-6 lg:px-8">
       <div className="overflow-hidden rounded-[2rem] bg-white shadow-[0_25px_80px_rgba(48,61,118,0.25)]">
         {data.navigation ? (
           <Suspense fallback={<Loader />}>
@@ -80,6 +86,7 @@ const HomePage = () => {
                       UI_MESSAGES.defaultProductActionLabel
                     }
                     header={sectionHeaders.featuredProducts}
+                    onProductAction={handleAddToCart}
                     products={featuredProducts.slice(0, UI_LIMITS.compactVisibleCount)}
                   />
                 </Suspense>
@@ -93,6 +100,7 @@ const HomePage = () => {
                       UI_MESSAGES.defaultProductActionLabel
                     }
                     header={sectionHeaders.trendingProducts}
+                    onProductAction={handleAddToCart}
                     products={trendingProducts.slice(0, UI_LIMITS.compactVisibleCount)}
                   />
                 </Suspense>
@@ -116,6 +124,7 @@ const HomePage = () => {
                       UI_MESSAGES.defaultProductActionLabel
                     }
                     header={sectionHeaders.featuredProducts}
+                    onProductAction={handleAddToCart}
                     products={featuredProducts.slice(
                       UI_LIMITS.compactVisibleCount,
                       UI_LIMITS.compactVisibleCount * 2,
@@ -131,6 +140,7 @@ const HomePage = () => {
                       UI_MESSAGES.defaultProductActionLabel
                     }
                     header={sectionHeaders.trendingProducts}
+                    onProductAction={handleAddToCart}
                     products={trendingProducts.slice(
                       UI_LIMITS.compactVisibleCount,
                       UI_LIMITS.compactVisibleCount * 2,

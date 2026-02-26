@@ -35,8 +35,10 @@ export interface CategoryData {
 
 export interface ProductData {
   id: string;
+  slug?: string;
   name: string;
   description: string;
+  categorySlug?: string;
   imageUrl: string;
   price: number;
   currency?: string;

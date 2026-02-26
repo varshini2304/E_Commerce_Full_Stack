@@ -7,10 +7,11 @@ interface ProductCardProps {
   product: ProductData;
   actionLabel: string;
   variant?: "default" | "compact";
+  onAction?: (product: ProductData) => void;
 }
 
 export const ProductCard = memo(
-  ({ product, actionLabel, variant = "compact" }: ProductCardProps) => {
+  ({ product, actionLabel, variant = "compact", onAction }: ProductCardProps) => {
     const formatter = new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: product.currency ?? APP_CONFIG.defaultCurrency,
@@ -56,7 +57,12 @@ export const ProductCard = memo(
             <p className="text-base font-bold text-[#1f2b59]">
               {formatter.format(product.price)}
             </p>
-            <Button size="sm" variant="navy">
+            <Button
+              onClick={() => onAction?.(product)}
+              size="sm"
+              type="button"
+              variant="navy"
+            >
               {actionLabel}
             </Button>
           </div>

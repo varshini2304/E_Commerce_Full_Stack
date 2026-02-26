@@ -1,4 +1,7 @@
+import { MouseEvent, useEffect, useState } from "react";
+import { CART_UPDATED_EVENT, getCartCount } from "../../cart/cartStorage";
 import { HomeNavigationData } from "../../../types/home";
+import { navigateTo } from "../../../shared/utils/navigation";
 
 interface TopNavProps {
   data: HomeNavigationData;
@@ -48,9 +51,42 @@ const renderActionIcon = (icon: string) => {
   );
 };
 
-const TopNav = ({ data }: TopNavProps) => (
-  <header className="flex flex-wrap items-center gap-4 border-b border-[#edeefe] bg-white px-6 py-5 md:px-8">
-    <a className="inline-flex items-center gap-2" href={data.homeHref ?? "#"}>
+const TopNav = ({ data }: TopNavProps) => {
+  const [cartCount, setCartCount] = useState(() => getCartCount());
+  const onNavigate = (
+    event: MouseEvent<HTMLAnchorElement>,
+    path: string,
+  ) => {
+    if (!path.startsWith("/")) {
+      return;
+    }
+
+    event.preventDefault();
+    navigateTo(path);
+  };
+
+  useEffect(() => {
+    const syncCount = () => {
+      setCartCount(getCartCount());
+    };
+
+    syncCount();
+    window.addEventListener("storage", syncCount);
+    window.addEventListener(CART_UPDATED_EVENT, syncCount);
+
+    return () => {
+      window.removeEventListener("storage", syncCount);
+      window.removeEventListener(CART_UPDATED_EVENT, syncCount);
+    };
+  }, []);
+
+  return (
+    <header className="flex flex-wrap items-center gap-4 border-b border-[#edeefe] bg-white px-6 py-5 md:px-8">
+    <a
+      className="inline-flex items-center gap-2"
+      href={data.homeHref ?? "/"}
+      onClick={(event) => onNavigate(event, data.homeHref ?? "/")}
+    >
       {data.logoUrl ? (
         <img alt={data.logoAlt ?? ""} className="h-8 w-8" src={data.logoUrl} />
       ) : (
@@ -94,23 +130,28 @@ const TopNav = ({ data }: TopNavProps) => (
     </form>
 
     <nav className="ml-auto flex items-center gap-3">
-      {data.actions.map((action) => (
-        <a
-          className="relative inline-flex items-center gap-2 rounded-full px-2 py-1 text-sm font-medium text-[#253163] hover:bg-[#f1f3ff]"
-          href={action.href}
-          key={action.id}
-        >
-          {renderActionIcon(action.icon)}
-          <span className="hidden md:inline">{action.label}</span>
-          {typeof action.badgeCount === "number" ? (
-            <span className="absolute -right-1 -top-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#f47f74] px-1 text-[11px] text-white">
-              {action.badgeCount}
-            </span>
-          ) : null}
-        </a>
-      ))}
+      {data.actions.map((action) => {
+        const badgeCount = action.icon === "cart" ? cartCount : action.badgeCount;
+        return (
+          <a
+            className="relative inline-flex items-center gap-2 rounded-full px-2 py-1 text-sm font-medium text-[#253163] hover:bg-[#f1f3ff]"
+            href={action.href}
+            key={action.id}
+            onClick={(event) => onNavigate(event, action.href)}
+          >
+            {renderActionIcon(action.icon)}
+            <span className="hidden md:inline">{action.label}</span>
+            {typeof badgeCount === "number" ? (
+              <span className="absolute -right-1 -top-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#f47f74] px-1 text-[11px] text-white">
+                {badgeCount}
+              </span>
+            ) : null}
+          </a>
+        );
+      })}
     </nav>
   </header>
-);
+  );
+};
 
 export default TopNav;

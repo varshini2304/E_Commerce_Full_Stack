@@ -5,6 +5,7 @@ export const APP_CONFIG = {
 
 export const QUERY_KEYS = {
   home: ["home"] as const,
+  profilePage: ["profile-page"] as const,
   staleTimeMs: 60_000,
   gcTimeMs: 300_000,
   retryCount: 2,
@@ -22,6 +23,7 @@ export const UI_LIMITS = {
 
 export const API_ENDPOINTS = {
   home: "/api/home",
+  profilePage: "/api/profile-page",
 } as const;
 
 export const UI_MESSAGES = {
