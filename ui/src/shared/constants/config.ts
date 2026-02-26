@@ -1,0 +1,33 @@
+export const APP_CONFIG = {
+  maxContainerWidthClass: "max-w-6xl",
+  defaultCurrency: "USD",
+} as const;
+
+export const QUERY_KEYS = {
+  home: ["home"] as const,
+  staleTimeMs: 60_000,
+  gcTimeMs: 300_000,
+  retryCount: 2,
+} as const;
+
+export const UI_LIMITS = {
+  categoryVisibleCount: 6,
+  featuredVisibleCount: 6,
+  trendingVisibleCount: 6,
+  compactVisibleCount: 3,
+  sectionSkeletonCount: 3,
+  cardSkeletonCount: 4,
+  ratingStarCount: 5,
+} as const;
+
+export const API_ENDPOINTS = {
+  home: "/api/home",
+} as const;
+
+export const UI_MESSAGES = {
+  loadingLabel: "Loading content",
+  genericErrorTitle: "Something went wrong",
+  genericErrorDescription: "Please refresh and try again.",
+  defaultProductActionLabel: "Add to cart",
+  newsletterEmailType: "email",
+} as const;
