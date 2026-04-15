@@ -1,14 +1,14 @@
-import { lazy, Suspense, useMemo, useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { useHomeData } from "../../home/hooks/useHomeData";
 import {
-  CartItem,
+  WishListItem,
+  getWishListItems,
+  removeWishListItem,
   clearCart,
-  getCartItems,
-  removeCartItem,
-  updateCartItemQuantity,
-} from "../cartStorage";
+} from "../WishListStorage";
+import { addProductToCart } from "../../cart/cartStorage";
 import { Loader, SectionSkeleton } from "../../../shared/components";
-import { APP_CONFIG, UI_MESSAGES } from "../../../shared/constants/config";
+import { UI_MESSAGES } from "../../../shared/constants/config";
 
 const TopNav = lazy(() => import("../../home/components/TopNav"));
 const SiteFooter = lazy(() => import("../../home/components/SiteFooter"));
@@ -19,16 +19,9 @@ const formatPrice = (amount: number, currency = "USD") =>
     currency,
   }).format(amount);
 
-const CartPage = () => {
+const WishListPage = () => {
   const { data, isLoading, isError } = useHomeData();
-  const [items, setItems] = useState<CartItem[]>(() => getCartItems());
-
-  const subtotal = useMemo(
-    () => items.reduce((sum, item) => sum + item.price * item.quantity, 0),
-    [items],
-  );
-  const shipping = items.length > 0 ? 7.99 : 0;
-  const total = subtotal + shipping;
+  const [items, setItems] = useState<WishListItem[]>(() => getWishListItems());
 
   if (isLoading) {
     return <Loader />;
@@ -47,12 +40,8 @@ const CartPage = () => {
     );
   }
 
-  const onQuantityChange = (id: string, nextQty: number) => {
-    setItems(updateCartItemQuantity(id, nextQty));
-  };
-
   const onRemove = (id: string) => {
-    setItems(removeCartItem(id));
+    setItems(removeWishListItem(id));
   };
 
   const onClear = () => {
@@ -60,8 +49,24 @@ const CartPage = () => {
     setItems([]);
   };
 
+  const onAddToCart = (item: WishListItem) => {
+    const product = {
+      id: item.id,
+      name: item.name,
+      description: "",
+      imageUrl: item.imageUrl,
+      price: item.price,
+      currency: item.currency,
+    };
+    addProductToCart(product, item.quantity);
+    // Optionally remove from wishlist after adding to cart
+    setItems(removeWishListItem(item.id));
+  };
+
+  const totalValue = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
   return (
-    <div className={`mx-auto w-full px-4 sm:px-6 lg:px-8`}>
+    <div className="mx-auto w-full px-4 sm:px-6 lg:px-8">
       <div className="overflow-hidden rounded-[2rem] bg-white shadow-[0_25px_80px_rgba(48,61,118,0.25)]">
         {data.navigation ? (
           <Suspense fallback={<Loader />}>
@@ -71,22 +76,22 @@ const CartPage = () => {
 
         <main className="space-y-6 bg-[#fbfbff] p-6 md:p-8">
           <section className="flex items-center justify-between">
-            <h1 className="text-3xl font-bold text-[#243267]">Your Cart</h1>
+            <h1 className="text-3xl font-bold text-[#243267]">My Wishlist</h1>
             {items.length > 0 ? (
               <button
                 className="rounded-full border border-[#dbe1fb] px-4 py-2 text-sm font-semibold text-[#405087]"
                 onClick={onClear}
                 type="button"
               >
-                Clear cart
+                Clear wishlist
               </button>
             ) : null}
           </section>
 
           {items.length === 0 ? (
             <section className="rounded-2xl border border-[#e2e8ff] bg-white p-10 text-center">
-              <h2 className="text-xl font-semibold text-[#223067]">Your cart is empty</h2>
-              <p className="mt-2 text-sm text-[#6f79a3]">Add products to see them here.</p>
+              <h2 className="text-xl font-semibold text-[#223067]">Your wishlist is empty</h2>
+              <p className="mt-2 text-sm text-[#6f79a3]">Add products to save them for later.</p>
               <a
                 className="mt-6 inline-flex rounded-full bg-[#1f4690] px-5 py-2 text-sm font-semibold text-white"
                 href="/"
@@ -112,27 +117,18 @@ const CartPage = () => {
                       <p className="mt-1 text-sm font-bold text-[#1f4690]">
                         {formatPrice(item.price, item.currency)}
                       </p>
+                      <p className="mt-0.5 text-xs text-[#8a93ba]">Qty: {item.quantity}</p>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-col items-end gap-2">
                       <button
-                        className="h-9 w-9 rounded-full border border-[#dbe1fb] text-[#415188]"
-                        onClick={() => onQuantityChange(item.id, Math.max(1, item.quantity - 1))}
+                        className="rounded-full bg-[#1f4690] px-4 py-1.5 text-xs font-semibold text-white hover:bg-[#1a3a75]"
+                        onClick={() => onAddToCart(item)}
                         type="button"
                       >
-                        -
-                      </button>
-                      <span className="w-8 text-center text-sm font-semibold text-[#2f3f72]">
-                        {item.quantity}
-                      </span>
-                      <button
-                        className="h-9 w-9 rounded-full border border-[#dbe1fb] text-[#415188]"
-                        onClick={() => onQuantityChange(item.id, item.quantity + 1)}
-                        type="button"
-                      >
-                        +
+                        Add to Cart
                       </button>
                       <button
-                        className="ml-3 text-sm font-semibold text-[#c24545]"
+                        className="text-sm font-semibold text-[#c24545] hover:text-[#a63a3a]"
                         onClick={() => onRemove(item.id)}
                         type="button"
                       >
@@ -144,26 +140,26 @@ const CartPage = () => {
               </div>
 
               <aside className="h-fit rounded-2xl border border-[#e2e8ff] bg-white p-5">
-                <h2 className="text-lg font-semibold text-[#243267]">Order summary</h2>
+                <h2 className="text-lg font-semibold text-[#243267]">Wishlist Summary</h2>
                 <div className="mt-4 space-y-2 text-sm text-[#5b6692]">
                   <p className="flex items-center justify-between">
-                    <span>Subtotal</span>
-                    <span>{formatPrice(subtotal)}</span>
+                    <span>Items</span>
+                    <span>{items.length}</span>
                   </p>
                   <p className="flex items-center justify-between">
-                    <span>Shipping</span>
-                    <span>{formatPrice(shipping)}</span>
+                    <span>Total Quantity</span>
+                    <span>{items.reduce((sum, item) => sum + item.quantity, 0)}</span>
                   </p>
                   <p className="flex items-center justify-between border-t border-[#edf1fd] pt-3 text-base font-semibold text-[#243267]">
-                    <span>Total</span>
-                    <span>{formatPrice(total)}</span>
+                    <span>Total Value</span>
+                    <span>{formatPrice(totalValue)}</span>
                   </p>
                 </div>
                 <a
-                  className="mt-5 inline-flex w-full items-center justify-center rounded-full bg-[#1f4690] px-5 py-3 text-sm font-semibold text-white"
-                  href="/order-success"
+                  className="mt-5 inline-flex w-full items-center justify-center rounded-full bg-[#1f4690] px-5 py-3 text-sm font-semibold text-white hover:bg-[#1a3a75]"
+                  href="/"
                 >
-                  Checkout
+                  Continue Shopping
                 </a>
               </aside>
             </section>
@@ -180,4 +176,4 @@ const CartPage = () => {
   );
 };
 
-export default CartPage;
+export default WishListPage;

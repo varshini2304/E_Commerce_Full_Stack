@@ -2,12 +2,12 @@ import { lazy, Suspense } from "react";
 import { useHomeData } from "../hooks/useHomeData";
 import { Loader, SectionSkeleton } from "../../../shared/components";
 import {
-  APP_CONFIG,
   UI_LIMITS,
   UI_MESSAGES,
 } from "../../../shared/constants/config";
 import { ProductData } from "../../../types/home";
 import { addProductToCart } from "../../cart/cartStorage";
+import { addProductToWishList } from "../../wishlist/WishListStorage";
 
 const HeroSection = lazy(() => import("./HeroSection"));
 const CategorySection = lazy(() => import("./CategorySection"));
@@ -23,6 +23,11 @@ const HomePage = () => {
   const handleAddToCart = (product: ProductData) => {
     addProductToCart(product);
     window.location.href = "/cart";
+  };
+
+  const handleAddToWishList = (product: ProductData) => {
+    addProductToWishList(product);
+    window.location.href = "/wishlist";
   };
 
   if (isLoading) {
@@ -77,23 +82,10 @@ const HomePage = () => {
           </section>
 
           {sectionHeaders?.featuredProducts || sectionHeaders?.trendingProducts ? (
-            <div className="grid gap-8 xl:grid-cols-2">
-              {sectionHeaders?.featuredProducts ? (
-                <Suspense fallback={<SectionSkeleton cards={UI_LIMITS.compactVisibleCount} />}>
-                  <FeaturedProducts
-                    actionLabel={
-                      sectionHeaders.featuredProducts.ctaLabel ??
-                      UI_MESSAGES.defaultProductActionLabel
-                    }
-                    header={sectionHeaders.featuredProducts}
-                    onProductAction={handleAddToCart}
-                    products={featuredProducts.slice(0, UI_LIMITS.compactVisibleCount)}
-                  />
-                </Suspense>
-              ) : null}
+            <div className="grid gap-8 xl:grid-cols">
 
               {sectionHeaders?.trendingProducts ? (
-                <Suspense fallback={<SectionSkeleton cards={UI_LIMITS.compactVisibleCount} />}>
+                <Suspense fallback={<SectionSkeleton cards={UI_LIMITS.trendingVisibleCount} />}>
                   <TrendingProducts
                     actionLabel={
                       sectionHeaders.trendingProducts.ctaLabel ??
@@ -101,7 +93,8 @@ const HomePage = () => {
                     }
                     header={sectionHeaders.trendingProducts}
                     onProductAction={handleAddToCart}
-                    products={trendingProducts.slice(0, UI_LIMITS.compactVisibleCount)}
+                    products={trendingProducts.slice(0, UI_LIMITS.trendingVisibleCount)}
+                    compact={false}
                   />
                 </Suspense>
               ) : null}
@@ -114,44 +107,23 @@ const HomePage = () => {
             </Suspense>
           ) : null}
 
-          {sectionHeaders?.featuredProducts || sectionHeaders?.trendingProducts ? (
-            <div className="grid gap-8 xl:grid-cols-2">
-              {sectionHeaders?.featuredProducts ? (
-                <Suspense fallback={<SectionSkeleton cards={UI_LIMITS.compactVisibleCount} />}>
-                  <FeaturedProducts
-                    actionLabel={
-                      sectionHeaders.featuredProducts.ctaLabel ??
-                      UI_MESSAGES.defaultProductActionLabel
-                    }
-                    header={sectionHeaders.featuredProducts}
-                    onProductAction={handleAddToCart}
-                    products={featuredProducts.slice(
-                      UI_LIMITS.compactVisibleCount,
-                      UI_LIMITS.compactVisibleCount * 2,
-                    )}
-                  />
-                </Suspense>
-              ) : null}
-              {sectionHeaders?.trendingProducts ? (
-                <Suspense fallback={<SectionSkeleton cards={UI_LIMITS.compactVisibleCount} />}>
-                  <TrendingProducts
-                    actionLabel={
-                      sectionHeaders.trendingProducts.ctaLabel ??
-                      UI_MESSAGES.defaultProductActionLabel
-                    }
-                    header={sectionHeaders.trendingProducts}
-                    onProductAction={handleAddToCart}
-                    products={trendingProducts.slice(
-                      UI_LIMITS.compactVisibleCount,
-                      UI_LIMITS.compactVisibleCount * 2,
-                    )}
-                  />
-                </Suspense>
-              ) : null}
-            </div>
-          ) : null}
+          <div className="grid gap-8 xl:grid-cols">
+            {sectionHeaders?.featuredProducts ? (
+              <Suspense fallback={<SectionSkeleton cards={UI_LIMITS.featuredVisibleCount} />}>
+                <FeaturedProducts
+                  actionLabel={
+                    sectionHeaders.featuredProducts.ctaLabel ??
+                    UI_MESSAGES.defaultProductActionLabel
+                  }
+                  header={sectionHeaders.featuredProducts}
+                  onProductAction={handleAddToCart}
+                  products={featuredProducts.slice(0, UI_LIMITS.featuredVisibleCount)}
+                  compact={false}
+                />
+              </Suspense>
+            ) : null}
+          </div>
         </div>
-
         {sectionHeaders?.newsletter && data.newsletter ? (
           <Suspense fallback={<SectionSkeleton cards={1} />}>
             <NewsletterSection

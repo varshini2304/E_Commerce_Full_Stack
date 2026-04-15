@@ -2,6 +2,7 @@ import { MouseEvent, useEffect, useState } from "react";
 import { CART_UPDATED_EVENT, getCartCount } from "../../cart/cartStorage";
 import { HomeNavigationData } from "../../../types/home";
 import { navigateTo } from "../../../shared/utils/navigation";
+import { WISH_LIST_UPDATED_EVENT, getWishListCount } from "../../wishlist/WishListStorage";
 
 interface TopNavProps {
   data: HomeNavigationData;
@@ -53,6 +54,7 @@ const renderActionIcon = (icon: string) => {
 
 const TopNav = ({ data }: TopNavProps) => {
   const [cartCount, setCartCount] = useState(() => getCartCount());
+   const [wishListCount, setWishListCount] = useState(() => getWishListCount());
   const onNavigate = (
     event: MouseEvent<HTMLAnchorElement>,
     path: string,
@@ -70,13 +72,19 @@ const TopNav = ({ data }: TopNavProps) => {
       setCartCount(getCartCount());
     };
 
+    const syncWishListCount = () => {
+      setWishListCount(getWishListCount());
+    };
+
     syncCount();
+    syncWishListCount();
     window.addEventListener("storage", syncCount);
     window.addEventListener(CART_UPDATED_EVENT, syncCount);
-
+    window.addEventListener(WISH_LIST_UPDATED_EVENT, syncWishListCount);
     return () => {
       window.removeEventListener("storage", syncCount);
       window.removeEventListener(CART_UPDATED_EVENT, syncCount);
+      window.removeEventListener(WISH_LIST_UPDATED_EVENT, syncWishListCount);
     };
   }, []);
 
@@ -131,7 +139,8 @@ const TopNav = ({ data }: TopNavProps) => {
 
     <nav className="ml-auto flex items-center gap-3">
       {data.actions.map((action) => {
-        const badgeCount = action.icon === "cart" ? cartCount : action.badgeCount;
+        const badgeCount =
+          action.icon === "cart" ? cartCount : action.icon === "wishlist" ? wishListCount : action.badgeCount;
         return (
           <a
             className="relative inline-flex items-center gap-2 rounded-full px-2 py-1 text-sm font-medium text-[#253163] hover:bg-[#f1f3ff]"

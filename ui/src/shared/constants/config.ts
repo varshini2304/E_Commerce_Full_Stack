@@ -13,10 +13,10 @@ export const QUERY_KEYS = {
 
 export const UI_LIMITS = {
   categoryVisibleCount: 6,
-  featuredVisibleCount: 6,
-  trendingVisibleCount: 6,
-  compactVisibleCount: 3,
-  sectionSkeletonCount: 3,
+  featuredVisibleCount: 4,
+  trendingVisibleCount: 4,
+  compactVisibleCount: 4,
+  sectionSkeletonCount: 4,
   cardSkeletonCount: 4,
   ratingStarCount: 5,
 } as const;
