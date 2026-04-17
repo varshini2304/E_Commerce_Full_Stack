@@ -3,6 +3,7 @@ package com.ecommerce.modules.order.repository;
 import com.ecommerce.modules.order.model.Order;
 import com.ecommerce.modules.order.model.OrderStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -22,5 +23,10 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query("SELECT COUNT(o) FROM Order o WHERE o.isPaid = true")
     long countPaidOrders();
 
-    boolean existsByUserIdAndStatusInAndItems_ProductId(Long userId, List<OrderStatus> statuses, Long productId);
+    @Query("SELECT COUNT(o) > 0 FROM Order o JOIN o.items i " +
+            "WHERE o.userId = :userId AND o.status IN :statuses AND i.productId = :productId")
+    boolean existsByUserIdAndStatusInAndItems_ProductId(
+            @Param("userId") Long userId,
+            @Param("statuses") List<OrderStatus> statuses,
+            @Param("productId") Long productId);
 }

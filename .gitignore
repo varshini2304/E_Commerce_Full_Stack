@@ -32,3 +32,27 @@ ui/.env.*
 server/.env
 server/.env.*
 !server/.env.example
+
+# Spring backend env overrides
+server-spring/.env
+server-spring/.env.*
+!server-spring/.env.example
+server-spring/src/main/resources/application-local.yml
+server-spring/src/main/resources/application-*.local.yml
+
+# Java/Maven build output
+server-spring/target/
+*.class
+*.jar
+*.war
+*.ear
+
+# Secrets and key material
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+id_rsa
+id_rsa.pub

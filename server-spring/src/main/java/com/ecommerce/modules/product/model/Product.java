@@ -1,5 +1,6 @@
 package com.ecommerce.modules.product.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.ecommerce.shared.util.StringListConverter;
 import jakarta.persistence.*;
 import lombok.*;
@@ -13,6 +14,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "products")
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 @Builder
 @NoArgsConstructor
