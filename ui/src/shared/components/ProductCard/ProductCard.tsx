@@ -8,10 +8,11 @@ interface ProductCardProps {
   actionLabel: string;
   variant?: "default" | "compact";
   onAction?: (product: ProductData) => void;
+  onCardClick?: (product: ProductData) => void;
 }
 
 export const ProductCard = memo(
-  ({ product, actionLabel, variant = "compact", onAction }: ProductCardProps) => {
+  ({ product, actionLabel, variant = "compact", onAction, onCardClick }: ProductCardProps) => {
     const formatter = new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: product.currency ?? APP_CONFIG.defaultCurrency,
@@ -24,7 +25,21 @@ export const ProductCard = memo(
       variant === "compact" ? "text-sm font-semibold" : "text-lg font-semibold";
 
     return (
-      <article className="group overflow-hidden rounded-2xl border border-[#e3e7f8] bg-white p-2 shadow-sm transition-shadow hover:shadow-md">
+      <article
+        className={`group overflow-hidden rounded-2xl border border-[#e3e7f8] bg-white p-2 shadow-sm transition-shadow hover:shadow-md ${onCardClick ? "cursor-pointer" : ""}`}
+        onClick={() => onCardClick?.(product)}
+        onKeyDown={(event) => {
+          if (!onCardClick) {
+            return;
+          }
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            onCardClick(product);
+          }
+        }}
+        role={onCardClick ? "button" : undefined}
+        tabIndex={onCardClick ? 0 : undefined}
+      >
         <div className="relative">
           <img
             src={product.imageUrl}
@@ -58,7 +73,10 @@ export const ProductCard = memo(
               {formatter.format(product.price)}
             </p>
             <Button
-              onClick={() => onAction?.(product)}
+              onClick={(event) => {
+                event.stopPropagation();
+                onAction?.(product);
+              }}
               size="sm"
               type="button"
               variant="navy"

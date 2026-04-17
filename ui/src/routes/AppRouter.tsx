@@ -8,6 +8,8 @@ import AdminManageProductsPage from "../features/auth/components/AdminManageProd
 import HomePage from "../features/home/components/HomePage";
 import MyOrdersPage from "../features/orders/components/MyOrdersPage";
 import OrderSuccessPage from "../features/orders/components/OrderSuccessPage";
+import CheckoutPage from "../features/orders/components/CheckoutPage";
+import TrackOrderPage from "../features/order-tracking/components/TrackOrderPage";
 import CartPage from "../features/cart/components/CartPage";
 import ProfilePage from "../features/profile/components/ProfilePage";
 import CategoryPage from "../features/products/components/CategoryPage";
@@ -15,6 +17,10 @@ import ProductDisplayPage from "../features/products/components/ProductDisplayPa
 import { MainLayout } from "../layouts/MainLayout";
 import { APP_NAVIGATE_EVENT } from "../shared/utils/navigation";
 import WishListPage from "../features/wishlist/components/WishListPage";
+import ContactPage from "../features/contact/components/ContactPage";
+import PrivacyPolicyPage from "../features/privacy-policy/components/PrivacyPolicyPage";
+import TermsPage from "../features/terms/components/TermsPage";
+import AboutPage from "../features/about/components/AboutPage";
 
 export const AppRouter = () => {
   const [pathname, setPathname] = useState(() => window.location.pathname);
@@ -43,10 +49,16 @@ export const AppRouter = () => {
   const isProductsPage = pathname === "/products" || pathname.startsWith("/products/");
   const isCategoryPage = pathname.startsWith("/category/");
   const isCartPage = pathname.startsWith("/cart");
+  const isCheckoutPage = pathname.startsWith("/checkout");
   const isProfilePage = pathname.startsWith("/profile");
   const isOrderSuccessPage = pathname.startsWith("/order-success");
+  const isTrackOrderPage = pathname.startsWith("/orders/") && !pathname.startsWith("/orders/manage");
   const isOrdersPage = pathname.startsWith("/orders") || pathname.startsWith("/my-orders");
   const isWishlistPage = pathname.startsWith("/wishlist");
+  const isContactPage = pathname.startsWith("/contact");
+  const isPrivacyPage = pathname.startsWith("/privacy");
+  const isTermsPage = pathname.startsWith("/terms");
+  const isAboutPage = pathname.startsWith("/about");
 
   return (
     <MainLayout>
@@ -62,10 +74,14 @@ export const AppRouter = () => {
         <AdminDashboardPage />
       ) : isAdminLoginPage ? (
         <AdminLoginPage />
+      ) : isTrackOrderPage ? (
+        <TrackOrderPage />
       ) : isOrdersPage ? (
         <MyOrdersPage />
       ) : isCartPage ? (
         <CartPage />
+      ) : isCheckoutPage ? (
+        <CheckoutPage />
       ) : isProfilePage ? (
         <ProfilePage />
       ) : isCategoryPage ? (
@@ -76,6 +92,14 @@ export const AppRouter = () => {
         <OrderSuccessPage />
       ) :isWishlistPage ? (
         <WishListPage />
+      ) : isContactPage ? (
+        <ContactPage />
+      ) : isPrivacyPage ? (
+        <PrivacyPolicyPage />
+      ) : isTermsPage ? (
+        <TermsPage />
+      ) : isAboutPage ? (
+        <AboutPage />
        ): isProductPage ? (
         <ProductDisplayPage />
       ) : (

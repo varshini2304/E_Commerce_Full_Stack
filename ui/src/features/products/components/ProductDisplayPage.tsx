@@ -3,6 +3,8 @@ import { useHomeData } from "../../home/hooks/useHomeData";
 import { Loader, SectionSkeleton } from "../../../shared/components";
 import { APP_CONFIG, UI_MESSAGES } from "../../../shared/constants/config";
 import { ProductData } from "../../../types/home";
+import { navigateTo } from "../../../shared/utils/navigation";
+import { addProductToCart } from "../../cart/cartStorage";
 
 const TopNav = lazy(() => import("../../home/components/TopNav"));
 const SiteFooter = lazy(() => import("../../home/components/SiteFooter"));
@@ -37,7 +39,10 @@ const StarRating = ({ rating }: { rating: number }) => (
 );
 
 const RelatedCard = ({ product }: { product: ProductData }) => (
-  <article className="grid grid-cols-[88px_1fr] gap-3 rounded-xl border border-[#e2e8ff] bg-white p-2">
+  <article
+    className="grid cursor-pointer grid-cols-[88px_1fr] gap-3 rounded-xl border border-[#e2e8ff] bg-white p-2"
+    onClick={() => navigateTo(`/product/${encodeURIComponent(String(product.slug ?? product.id))}`)}
+  >
     <img
       alt={product.name}
       className="h-20 w-20 rounded-lg object-cover"
@@ -83,15 +88,25 @@ const ProductDisplayPage = () => {
 
   const featuredProducts = data.featuredProducts ?? [];
   const trendingProducts = data.trendingProducts ?? [];
-  const selectedProduct = featuredProducts[0] ?? trendingProducts[0];
-  const relatedProducts = [...featuredProducts.slice(1, 3), ...trendingProducts.slice(0, 1)];
+  const allProducts = [...featuredProducts, ...trendingProducts];
+  const productLookup = decodeURIComponent(window.location.pathname.split("/")[2] ?? "");
+  const selectedProduct =
+    allProducts.find(
+      (product) => product.slug === productLookup || String(product.id) === productLookup,
+    ) ?? allProducts[0];
+  const relatedProducts = allProducts
+    .filter((product) => product.id !== selectedProduct?.id)
+    .slice(0, 3);
 
   if (!selectedProduct) {
     return <Loader label={UI_MESSAGES.loadingLabel} />;
   }
 
-  const gallery: ProductData[] = [selectedProduct, ...featuredProducts.slice(1, 4)];
-  const reviewItems: ProductData[] = [featuredProducts[1], featuredProducts[2]].filter(
+  const gallery: ProductData[] = [
+    selectedProduct,
+    ...allProducts.filter((product) => product.id !== selectedProduct.id).slice(0, 3),
+  ];
+  const reviewItems: ProductData[] = [allProducts[1], allProducts[2]].filter(
     (item): item is ProductData => Boolean(item),
   );
   const rating = selectedProduct.rating ?? 4.8;
@@ -193,6 +208,10 @@ const ProductDisplayPage = () => {
                 </div>
                 <button
                   className="h-14 min-w-[260px] rounded-xl bg-gradient-to-r from-[#f77f72] to-[#4563c8] px-8 text-3xl font-semibold text-white"
+                  onClick={() => {
+                    addProductToCart(selectedProduct, quantity);
+                    navigateTo("/checkout");
+                  }}
                   type="button"
                 >
                   Buy Now

@@ -1,8 +1,10 @@
 import { lazy, Suspense, useMemo } from "react";
 import { useHomeData } from "../../home/hooks/useHomeData";
+import { useProfileData } from "../../profile/hooks/useProfileData";
 import { Loader, SectionSkeleton } from "../../../shared/components";
 import { APP_CONFIG, UI_MESSAGES } from "../../../shared/constants/config";
 import { ProductData } from "../../../types/home";
+import { navigateTo } from "../../../shared/utils/navigation";
 
 const TopNav = lazy(() => import("../../home/components/TopNav"));
 const SiteFooter = lazy(() => import("../../home/components/SiteFooter"));
@@ -38,12 +40,17 @@ const sidebarItems = [
 
 const MyOrdersPage = () => {
   const { data, isLoading, isError } = useHomeData();
+  const {
+    data: profileData,
+    isLoading: isProfileLoading,
+    isError: isProfileError,
+  } = useProfileData();
 
-  if (isLoading) {
+  if (isLoading || isProfileLoading) {
     return <Loader />;
   }
 
-  if (isError || !data) {
+  if (isError || isProfileError || !data || !profileData) {
     return (
       <section className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center">
         <h1 className="text-lg font-semibold text-red-900">
@@ -56,25 +63,31 @@ const MyOrdersPage = () => {
     );
   }
 
-  const allProducts = [...(data.featuredProducts ?? []), ...(data.trendingProducts ?? [])];
   const orders: OrderRow[] = useMemo(() => {
-    const statusSeed: OrderStatus[] = ["Delivered", "Processing", "Shipped", "Cancelled"];
-    const chunks = [
-      allProducts.slice(0, 3),
-      allProducts.slice(3, 5),
-      allProducts.slice(5, 8),
-      allProducts.slice(8, 10),
-    ].filter((chunk) => chunk.length > 0);
+    const statusMap: Record<string, OrderStatus> = {
+      delivered: "Delivered",
+      processing: "Processing",
+      shipped: "Shipped",
+      cancelled: "Cancelled",
+      pending: "Processing",
+    };
 
-    return chunks.map((items, index) => ({
-      id: `${12347 - index}`,
-      status: statusSeed[index] ?? "Delivered",
-      items,
+    return profileData.orders.map((order) => ({
+      id: String(order.id),
+      status: statusMap[order.status] ?? "Processing",
+      items: order.items.map((item) => ({
+        id: `${order.id}-${item.productId}`,
+        name: item.name,
+        description: item.name,
+        imageUrl: item.thumbnail,
+        price: item.price,
+        currency: APP_CONFIG.defaultCurrency,
+      })),
     }));
-  }, [allProducts]);
+  }, [profileData.orders]);
 
-  const userName = data.navigation?.logoText ?? "Alex Johnson";
-  const userEmail = "alex.johnson@email.com";
+  const userName = profileData.user.name;
+  const userEmail = profileData.user.email;
 
   return (
     <div className={`mx-auto w-full ${APP_CONFIG.maxContainerWidthClass} px-4 sm:px-6 lg:px-8`}>
@@ -95,7 +108,7 @@ const MyOrdersPage = () => {
                   <img
                     alt={userName}
                     className="h-full w-full object-cover"
-                    src={orders[0]?.items[0]?.imageUrl}
+                    src={profileData.user.avatarUrl}
                   />
                 </div>
                 <h2 className="mt-4 text-3xl font-semibold text-[#253267]">{userName}</h2>
@@ -179,6 +192,7 @@ const MyOrdersPage = () => {
                         </span>
                         <button
                           className="ml-4 h-10 rounded-lg bg-[#4562c8] px-6 text-lg font-semibold text-white"
+                          onClick={() => navigateTo(`/orders/${order.id}`)}
                           type="button"
                         >
                           {order.status === "Cancelled" ? "View Details" : "Track Order"}

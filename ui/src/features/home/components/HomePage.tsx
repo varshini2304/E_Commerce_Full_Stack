@@ -8,6 +8,7 @@ import {
 import { ProductData } from "../../../types/home";
 import { addProductToCart } from "../../cart/cartStorage";
 import { addProductToWishList } from "../../wishlist/WishListStorage";
+import { navigateTo } from "../../../shared/utils/navigation";
 
 const HeroSection = lazy(() => import("./HeroSection"));
 const CategorySection = lazy(() => import("./CategorySection"));
@@ -28,6 +29,11 @@ const HomePage = () => {
   const handleAddToWishList = (product: ProductData) => {
     addProductToWishList(product);
     window.location.href = "/wishlist";
+  };
+
+  const handleOpenProduct = (product: ProductData) => {
+    const productKey = product.slug ?? product.id;
+    navigateTo(`/product/${encodeURIComponent(String(productKey))}`);
   };
 
   if (isLoading) {
@@ -93,6 +99,7 @@ const HomePage = () => {
                     }
                     header={sectionHeaders.trendingProducts}
                     onProductAction={handleAddToCart}
+                    onProductSelect={handleOpenProduct}
                     products={trendingProducts.slice(0, UI_LIMITS.trendingVisibleCount)}
                     compact={false}
                   />
@@ -117,6 +124,7 @@ const HomePage = () => {
                   }
                   header={sectionHeaders.featuredProducts}
                   onProductAction={handleAddToCart}
+                  onProductSelect={handleOpenProduct}
                   products={featuredProducts.slice(0, UI_LIMITS.featuredVisibleCount)}
                   compact={false}
                 />

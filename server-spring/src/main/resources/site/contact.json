@@ -1,0 +1,25 @@
+{
+  "title": "Contact Us",
+  "subtitle": "Our support team is here to help you with orders, returns, and account issues.",
+  "address": "221B Baker Street, Marylebone, London NW1 6XE, United Kingdom",
+  "phone": "+44 20 7946 0958",
+  "email": "support@ecommerce.com",
+  "mapEmbedUrl": "https://www.google.com/maps?q=221B+Baker+Street,+London&output=embed",
+  "socialLinks": [
+    {
+      "id": "facebook",
+      "label": "Facebook",
+      "href": "https://facebook.com"
+    },
+    {
+      "id": "twitter",
+      "label": "Twitter",
+      "href": "https://twitter.com"
+    },
+    {
+      "id": "instagram",
+      "label": "Instagram",
+      "href": "https://instagram.com"
+    }
+  ]
+}

@@ -53,6 +53,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/banners").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/home").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/profile-page").permitAll()
+                .requestMatchers("/api/site/**").permitAll()
                 .requestMatchers("/api/newsletter/**").permitAll()
                 // Admin endpoints
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")

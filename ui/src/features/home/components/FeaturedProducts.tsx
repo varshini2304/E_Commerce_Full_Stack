@@ -8,6 +8,7 @@ interface FeaturedProductsProps {
   actionLabel: string;
   compact?: boolean;
   onProductAction?: (product: ProductData) => void;
+  onProductSelect?: (product: ProductData) => void;
 }
 
 const FeaturedProducts = memo(
@@ -17,6 +18,7 @@ const FeaturedProducts = memo(
     actionLabel,
     compact = true,
     onProductAction,
+    onProductSelect,
   }: FeaturedProductsProps) => (
     <section className="space-y-6">
       <SectionHeader title={header.title} subtitle={header.subtitle} />
@@ -30,6 +32,7 @@ const FeaturedProducts = memo(
             actionLabel={actionLabel}
             key={product.id}
             onAction={onProductAction}
+            onCardClick={onProductSelect}
             product={product}
             variant={compact ? "compact" : "default"}
           />

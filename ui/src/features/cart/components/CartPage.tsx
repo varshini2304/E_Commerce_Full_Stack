@@ -161,7 +161,7 @@ const CartPage = () => {
                 </div>
                 <a
                   className="mt-5 inline-flex w-full items-center justify-center rounded-full bg-[#1f4690] px-5 py-3 text-sm font-semibold text-white"
-                  href="/order-success"
+                  href="/checkout"
                 >
                   Checkout
                 </a>

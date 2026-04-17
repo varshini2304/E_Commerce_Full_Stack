@@ -1,0 +1,20 @@
+{
+  "title": "About Us",
+  "subtitle": "We build a shopping experience that feels personal, fast, and trustworthy.",
+  "heroImage": "https://picsum.photos/seed/about-hero/1600/700",
+  "story": "Founded with a customer-first mindset, we started as a small online catalog and evolved into a full e-commerce ecosystem serving shoppers across categories.",
+  "mission": "To make everyday shopping simple, transparent, and joyful with world-class service.",
+  "vision": "To become the most trusted digital marketplace where quality products meet human support.",
+  "values": [
+    "Customer obsession over short-term gain",
+    "Quality over quantity in every product experience",
+    "Transparency in pricing, delivery, and support",
+    "Continuous improvement through data and feedback"
+  ],
+  "stats": [
+    { "label": "Happy Customers", "value": "120K+" },
+    { "label": "Orders Delivered", "value": "850K+" },
+    { "label": "Brands Partnered", "value": "2,500+" },
+    { "label": "Support Availability", "value": "24/7" }
+  ]
+}

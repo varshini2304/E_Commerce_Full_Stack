@@ -40,6 +40,16 @@ public class OrderController {
         return ResponseEntity.ok(ApiResponse.success("Orders fetched", data));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<Order>> getOrderById(
+            Authentication authentication,
+            @PathVariable Long id
+    ) {
+        Long userId = getUserId(authentication);
+        Order data = orderService.getOrderByIdForUser(userId, id);
+        return ResponseEntity.ok(ApiResponse.success("Order fetched", data));
+    }
+
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<List<Order>>> getAllOrders() {

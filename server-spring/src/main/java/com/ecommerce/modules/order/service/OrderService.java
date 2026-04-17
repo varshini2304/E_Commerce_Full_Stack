@@ -91,6 +91,12 @@ public class OrderService {
         return orderRepository.findByUserIdOrderByCreatedAtDesc(userId);
     }
 
+    public Order getOrderByIdForUser(Long userId, Long orderId) {
+        return orderRepository.findById(orderId)
+                .filter(order -> order.getUserId().equals(userId))
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
+    }
+
     public List<Order> getAllOrders() {
         return orderRepository.findAllByOrderByCreatedAtDesc();
     }
