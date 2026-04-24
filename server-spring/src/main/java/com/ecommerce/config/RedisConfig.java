@@ -20,6 +20,7 @@ import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
+import java.util.Map;
 
 @Configuration
 @EnableCaching
@@ -28,14 +29,24 @@ public class RedisConfig implements CachingConfigurer {
 
     @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
-        RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofMinutes(10))
+        RedisCacheConfiguration base = RedisCacheConfiguration.defaultCacheConfig()
                 .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(redisValueSerializer()))
                 .disableCachingNullValues();
 
+        Map<String, RedisCacheConfiguration> perCache = Map.of(
+                "products",      base.entryTtl(Duration.ofMinutes(5)),
+                "product:slug",  base.entryTtl(Duration.ofMinutes(15)),
+                "home",          base.entryTtl(Duration.ofMinutes(10)),
+                "categories",    base.entryTtl(Duration.ofHours(1)),
+                "banners",       base.entryTtl(Duration.ofMinutes(30)),
+                "site",          base.entryTtl(Duration.ofHours(6)),
+                "reviews",       base.entryTtl(Duration.ofMinutes(5))
+        );
+
         return RedisCacheManager.builder(connectionFactory)
-                .cacheDefaults(defaultConfig)
+                .cacheDefaults(base.entryTtl(Duration.ofMinutes(10)))
+                .withInitialCacheConfigurations(perCache)
                 .build();
     }
 

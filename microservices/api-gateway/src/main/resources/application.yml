@@ -1,0 +1,58 @@
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      routes:
+        # ── Product Service ──
+        - id: product-service
+          uri: http://product-service:8081
+          predicates:
+            - Path=/api/products/**
+        
+        - id: category-service
+          uri: http://product-service:8081
+          predicates:
+            - Path=/api/categories/**
+
+        # ── Order Service (includes Cart) ──
+        - id: order-service
+          uri: http://order-service:8082
+          predicates:
+            - Path=/api/orders/**
+
+        - id: cart-service
+          uri: http://order-service:8082
+          predicates:
+            - Path=/api/cart/**
+
+        # ── Payment Service ──
+        - id: payment-service
+          uri: http://payment-service:8083
+          predicates:
+            - Path=/api/payments/**
+
+        # ── Inventory Service ──
+        - id: inventory-service
+          uri: http://inventory-service:8084
+          predicates:
+            - Path=/api/inventory/**
+
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_UNIQUE
+
+# ── Server ──
+server:
+  port: 8080
+
+# ── JWT Config ──
+app:
+  jwt:
+    secret: f0e1d2c3b4a5968778695a4b3c2d1e0f9a8b7c6d5e4f3021a9b8c7d6e5f40312
+
+# ── Logging ──
+logging:
+  level:
+    com.ecommerce.gateway: DEBUG
+    org.springframework.cloud.gateway: INFO

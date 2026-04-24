@@ -1,20 +1,57 @@
 import { Product } from "../models/Product.js";
 import { Review } from "../models/Review.js";
 import { ApiError } from "../utils/ApiError.js";
+import { getCache, invalidatePatterns, setCache } from "../utils/cache.js";
+
+const PRODUCT_LIST_CACHE_PREFIX = "products:list:";
+const PRODUCT_DETAILS_CACHE_PREFIX = "products:slug:";
+
+const buildListCacheKey = (query, page, limit) => {
+  const payload = {
+    page,
+    limit,
+    category: query.category || "",
+    minPrice: query.minPrice || "",
+    maxPrice: query.maxPrice || "",
+    rating: query.rating || "",
+    search: query.search || "",
+    sort: query.sort || "",
+  };
+
+  return `${PRODUCT_LIST_CACHE_PREFIX}${Buffer.from(JSON.stringify(payload)).toString("base64url")}`;
+};
+
+export const invalidateProductCaches = async () => {
+  await invalidatePatterns([`${PRODUCT_LIST_CACHE_PREFIX}*`, `${PRODUCT_DETAILS_CACHE_PREFIX}*`, "home:data"]);
+};
 
 export const listProducts = async (query) => {
-  const page = query.page || 1;
-  const limit = query.limit || 12;
+  const page = Math.max(Number.parseInt(query.page, 10) || 1, 1);
+  const limit = Math.max(Number.parseInt(query.limit, 10) || 12, 1);
   const skip = (page - 1) * limit;
+  const cacheKey = buildListCacheKey(query, page, limit);
+
+  const cached = await getCache(cacheKey);
+  if (cached) {
+    return cached;
+  }
 
   const filter = { isActive: true };
   if (query.category) filter.categorySlug = query.category;
   if (query.minPrice || query.maxPrice) {
+    const minPrice = Number.parseFloat(query.minPrice);
+    const maxPrice = Number.parseFloat(query.maxPrice);
     filter.finalPrice = {};
-    if (query.minPrice) filter.finalPrice.$gte = query.minPrice;
-    if (query.maxPrice) filter.finalPrice.$lte = query.maxPrice;
+    if (Number.isFinite(minPrice)) filter.finalPrice.$gte = minPrice;
+    if (Number.isFinite(maxPrice)) filter.finalPrice.$lte = maxPrice;
+    if (Object.keys(filter.finalPrice).length === 0) delete filter.finalPrice;
   }
-  if (query.rating) filter.ratingsAverage = { $gte: query.rating };
+  if (query.rating) {
+    const rating = Number.parseFloat(query.rating);
+    if (Number.isFinite(rating)) {
+      filter.ratingsAverage = { $gte: rating };
+    }
+  }
   if (query.search) filter.name = { $regex: query.search, $options: "i" };
 
   const sortMap = {
@@ -31,15 +68,26 @@ export const listProducts = async (query) => {
     Product.countDocuments(filter),
   ]);
 
-  return {
+  const response = {
     products,
     total,
     page,
     pages: Math.ceil(total / limit),
   };
+
+  await setCache(cacheKey, response, 60);
+  return response;
 };
 
 export const getProductBySlug = async (slug) => {
+  const cacheKey = `${PRODUCT_DETAILS_CACHE_PREFIX}${slug}`;
+  const cached = await getCache(cacheKey);
+
+  if (cached) {
+    await Product.updateOne({ _id: cached.product._id }, { $inc: { views: 1 } });
+    return cached;
+  }
+
   const product = await Product.findOne({ slug, isActive: true }).lean();
   if (!product) {
     throw new ApiError("Product not found", 404);
@@ -58,7 +106,9 @@ export const getProductBySlug = async (slug) => {
 
   await Product.updateOne({ _id: product._id }, { $inc: { views: 1 } });
 
-  return { product: { ...product, reviews }, relatedProducts };
+  const response = { product: { ...product, reviews }, relatedProducts };
+  await setCache(cacheKey, response, 60);
+  return response;
 };
 
 export const createProduct = async (payload) => {
@@ -68,6 +118,7 @@ export const createProduct = async (payload) => {
   }
 
   const product = await Product.create(payload);
+  await invalidateProductCaches();
   return product.toObject();
 };
 
@@ -81,6 +132,7 @@ export const updateProduct = async (id, payload) => {
     throw new ApiError("Product not found", 404);
   }
 
+  await invalidateProductCaches();
   return product;
 };
 
@@ -90,6 +142,7 @@ export const deleteProduct = async (id) => {
     throw new ApiError("Product not found", 404);
   }
 
+  await invalidateProductCaches();
   return product;
 };
 
@@ -99,5 +152,6 @@ export const updateProductStock = async (id, stock) => {
     throw new ApiError("Product not found", 404);
   }
 
+  await invalidateProductCaches();
   return product;
 };

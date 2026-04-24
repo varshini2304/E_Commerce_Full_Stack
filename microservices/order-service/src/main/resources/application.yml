@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: order-service
+
+  # ── MongoDB ──
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/order_db
+
+  # ── Kafka ──
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: order-service-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+  # ── Jackson ──
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    default-property-inclusion: non_null
+
+# ── Server ──
+server:
+  port: 8082
+
+# ── Logging ──
+logging:
+  level:
+    com.ecommerce.order: DEBUG
+    org.apache.kafka: WARN

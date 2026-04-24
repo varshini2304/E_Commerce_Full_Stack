@@ -2,6 +2,7 @@ import { Order } from "../models/Order.js";
 import { Product } from "../models/Product.js";
 import { Review } from "../models/Review.js";
 import { ApiError } from "../utils/ApiError.js";
+import { invalidateProductCaches } from "./productService.js";
 
 export const createReview = async (userId, payload) => {
   const hasPurchased = await Order.exists({
@@ -41,5 +42,6 @@ export const createReview = async (userId, payload) => {
     );
   }
 
+  await invalidateProductCaches();
   return review;
 };

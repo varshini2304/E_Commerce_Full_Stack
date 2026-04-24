@@ -1,15 +1,13 @@
-import dotenv from "dotenv";
+import "dotenv/config";
 import { app } from "./src/app.js";
 import { connectDB } from "./src/config/db.js";
 
-dotenv.config();
-
-const port = Number(process.env.PORT || 5000);
+const PORT = Number(process.env.PORT || 8080);
 
 const startServer = async () => {
   await connectDB(process.env.MONGO_URI);
-  app.listen(port, () => {
-    process.stdout.write(`Server listening on port ${port}\n`);
+  app.listen(PORT, () => {
+    process.stdout.write(`Server running on port ${PORT}\n`);
   });
 };
 

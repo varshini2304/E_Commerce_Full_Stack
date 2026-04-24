@@ -13,20 +13,20 @@ import java.util.List;
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
-    List<Order> findByUserIdOrderByCreatedAtDesc(Long userId);
+        List<Order> findByUserIdOrderByCreatedAtDesc(Long userId);
 
-    List<Order> findAllByOrderByCreatedAtDesc();
+        List<Order> findAllByOrderByCreatedAtDesc();
 
-    @Query("SELECT COALESCE(SUM(o.total), 0) FROM Order o WHERE o.isPaid = true")
-    BigDecimal sumTotalRevenue();
+        @Query("SELECT COALESCE(SUM(o.total), 0) FROM Order o WHERE o.isPaid = true")
+        BigDecimal sumTotalRevenue();
 
-    @Query("SELECT COUNT(o) FROM Order o WHERE o.isPaid = true")
-    long countPaidOrders();
+        @Query("SELECT COUNT(o) FROM Order o WHERE o.isPaid = true")
+        long countPaidOrders();
 
-    @Query("SELECT COUNT(o) > 0 FROM Order o JOIN o.items i " +
-            "WHERE o.userId = :userId AND o.status IN :statuses AND i.productId = :productId")
-    boolean existsByUserIdAndStatusInAndItems_ProductId(
-            @Param("userId") Long userId,
-            @Param("statuses") List<OrderStatus> statuses,
-            @Param("productId") Long productId);
+        @Query("SELECT COUNT(o) > 0 FROM Order o JOIN o.items i " +
+                        "WHERE o.userId = :userId AND o.status IN :statuses AND i.productId = :productId")
+        boolean existsByUserIdAndStatusInAndItems_ProductId(
+                        @Param("userId") Long userId,
+                        @Param("statuses") List<OrderStatus> statuses,
+                        @Param("productId") Long productId);
 }

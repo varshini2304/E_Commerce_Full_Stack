@@ -1,8 +1,15 @@
 import { Banner } from "../models/Banner.js";
 import { Category } from "../models/Category.js";
 import { Product } from "../models/Product.js";
+import { getCache, setCache } from "../utils/cache.js";
 
 export const getHomePageData = async () => {
+  const cacheKey = "home:data";
+  const cached = await getCache(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
   const bannerFilter = buildActiveBannerFilter();
 
   const [
@@ -34,7 +41,7 @@ export const getHomePageData = async () => {
   const heroBanner = heroBanners[0] || null;
   const promoBanner = promoBanners[0] || null;
 
-  return {
+  const response = {
     navigation: {
       logoText: "E-Commerce",
       homeHref: "/",
@@ -109,6 +116,9 @@ export const getHomePageData = async () => {
     offerBanners,
     appBanners,
   };
+
+  await setCache(cacheKey, response, 60);
+  return response;
 };
 
 const buildActiveBannerFilter = () => {
