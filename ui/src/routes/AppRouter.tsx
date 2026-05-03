@@ -21,6 +21,7 @@ import ContactPage from "../features/contact/components/ContactPage";
 import PrivacyPolicyPage from "../features/privacy-policy/components/PrivacyPolicyPage";
 import TermsPage from "../features/terms/components/TermsPage";
 import AboutPage from "../features/about/components/AboutPage";
+import LandingPage from "../features/landing/components/LandingPage";
 
 // ── Vendor Dashboard ──────────────────────────────────────────
 import VendorLoginPage from "../features/vendor/pages/VendorLoginPage";
