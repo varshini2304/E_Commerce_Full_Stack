@@ -44,6 +44,11 @@ export const AppRouter = () => {
     };
   }, []);
 
+  // ── Landing page (root, full-screen marketing page) ──
+  if (pathname === "/" || pathname === "") {
+    return <LandingPage />;
+  }
+
   // ── Vendor routes (render outside MainLayout — own full-screen layout) ──
   const isVendorPath = pathname.startsWith("/vendor");
   if (isVendorPath) {
@@ -78,6 +83,7 @@ export const AppRouter = () => {
   const isPrivacyPage = pathname.startsWith("/privacy");
   const isTermsPage = pathname.startsWith("/terms");
   const isAboutPage = pathname.startsWith("/about");
+  const isShopPage = pathname === "/shop" || pathname.startsWith("/shop/") || pathname === "/home";
 
   return (
     <MainLayout>
@@ -121,6 +127,8 @@ export const AppRouter = () => {
         <AboutPage />
       ) : isProductPage ? (
         <ProductDisplayPage />
+      ) : isShopPage ? (
+        <HomePage />
       ) : (
         <HomePage />
       )}
