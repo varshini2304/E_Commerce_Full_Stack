@@ -29,9 +29,7 @@ const LandingPage = () => {
 
       {/* Hero */}
       <section className="mx-auto max-w-6xl px-6 pt-16 pb-20 text-center">
-        <span className="inline-block rounded-full border border-indigo-400/30 bg-indigo-500/10 px-3 py-1 text-xs font-medium tracking-wider text-indigo-300 uppercase">
-          Production-grade · Open-source · MERN
-        </span>
+
         <h1 className="mt-6 text-4xl font-extrabold leading-tight sm:text-6xl">
           A complete e-commerce platform,
           <br />
@@ -141,7 +139,7 @@ const LandingPage = () => {
 
         {/* ASCII flow */}
         <pre className="mt-8 overflow-x-auto rounded-2xl border border-slate-800 bg-slate-950/80 p-4 text-xs leading-6 text-slate-300">
-{`  Browser                Vercel CDN              Render API               MongoDB Atlas
+          {`  Browser                Vercel CDN              Render API               MongoDB Atlas
   ┌──────┐  HTTPS GET  ┌────────────┐  fetch    ┌──────────────┐  query   ┌────────────┐
   │ User │ ──────────▶ │ React app  │ ────────▶ │ Express API  │ ───────▶ │ Cloud DB   │
   └──────┘   token     └────────────┘   JWT     └──────────────┘  index   └────────────┘
