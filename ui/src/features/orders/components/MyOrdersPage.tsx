@@ -30,13 +30,13 @@ const statusClassMap: Record<OrderStatus, string> = {
   Cancelled: "bg-[#c2c8de] text-[#4c577f]",
 };
 
-const sidebarItems = [
+const sidebarItems: { label: string; active: boolean; danger?: boolean }[] = [
   { label: "My Orders", active: true },
   { label: "Wishlist", active: false },
   { label: "Addresses", active: false },
   { label: "Account Settings", active: false },
   { label: "Logout", active: false, danger: true },
-] as const;
+];
 
 const MyOrdersPage = () => {
   const { data, isLoading, isError } = useHomeData();
@@ -90,128 +90,117 @@ const MyOrdersPage = () => {
   const userEmail = profileData.user.email;
 
   return (
-    <div className={`mx-auto w-full ${APP_CONFIG.maxContainerWidthClass} px-4 sm:px-6 lg:px-8`}>
-      <div className="overflow-hidden rounded-[2rem] bg-white shadow-[0_25px_80px_rgba(48,61,118,0.25)]">
-        {data.navigation ? (
-          <Suspense fallback={<Loader />}>
-            <TopNav data={data.navigation} />
-          </Suspense>
-        ) : null}
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,#e0e2f6,#cbcde8_45%,#d9daee_80%)]">
+      {data.navigation ? (
+        <Suspense fallback={<Loader />}>
+          <TopNav data={data.navigation} />
+        </Suspense>
+      ) : null}
 
-        <div className="border-y border-[#eceffd] bg-[#f5f6fe] px-6 py-4 text-sm text-[#6a75a1]" />
-
-        <main className="bg-[radial-gradient(circle_at_top,#eceefe,#dde1fa_50%,#e8eafd)] p-6 md:p-8">
-          <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
-            <aside className="h-fit rounded-2xl border border-[#e2e7fb] bg-white/90 p-4 shadow-sm">
-              <div className="text-center">
-                <div className="mx-auto h-24 w-24 overflow-hidden rounded-full border border-[#d9dff8]">
-                  <img
-                    alt={userName}
-                    className="h-full w-full object-cover"
-                    src={profileData.user.avatarUrl}
-                  />
-                </div>
-                <h2 className="mt-4 text-3xl font-semibold text-[#253267]">{userName}</h2>
-                <p className="mt-1 text-sm text-[#727ca4]">{userEmail}</p>
+      <main className="px-6 py-8 sm:px-8 lg:px-12">
+        <div className="grid gap-6 lg:grid-cols-[240px_1fr]">
+          <aside className="h-fit rounded-xl border border-[#e2e7fb] bg-white p-4 shadow-sm">
+            <div className="text-center">
+              <div className="mx-auto h-16 w-16 overflow-hidden rounded-full border border-[#d9dff8]">
+                <img
+                  alt={userName}
+                  className="h-full w-full object-cover"
+                  src={profileData.user.avatarUrl}
+                />
               </div>
-              <nav className="mt-5 space-y-1 border-t border-[#eceffd] pt-3">
-                {sidebarItems.map((item) => (
-                  <button
-                    className={`w-full rounded-lg px-4 py-3 text-left text-lg ${
-                      item.active
-                        ? "bg-[#e9edff] text-[#334794]"
-                        : item.danger
-                          ? "text-[#ee6a5c]"
-                          : "text-[#5c678f] hover:bg-[#f4f6ff]"
-                    }`}
-                    key={item.label}
-                    type="button"
-                  >
-                    {item.label}
-                  </button>
-                ))}
-              </nav>
-            </aside>
+              <h2 className="mt-3 text-sm font-semibold text-[#253267]">{userName}</h2>
+              <p className="mt-0.5 text-xs text-[#727ca4]">{userEmail}</p>
+            </div>
+            <nav className="mt-4 space-y-0.5 border-t border-[#eceffd] pt-3">
+              {sidebarItems.map((item) => (
+                <button
+                  className={`w-full rounded-md px-3 py-2 text-left text-sm ${
+                    item.active
+                      ? "bg-[#e9edff] font-medium text-[#334794]"
+                      : item.danger
+                        ? "text-[#ee6a5c] hover:bg-[#fdf3f2]"
+                        : "text-[#5c678f] hover:bg-[#f4f6ff]"
+                  }`}
+                  key={item.label}
+                  type="button"
+                >
+                  {item.label}
+                </button>
+              ))}
+            </nav>
+          </aside>
 
-            <section className="space-y-4">
-              <header className="rounded-2xl border border-[#e2e7fb] bg-white/85 px-6 py-4">
-                <h1 className="text-4xl font-semibold text-[#253267]">My Orders</h1>
-                <div className="mt-3 inline-flex rounded-xl border border-[#d7ddf8] bg-white px-5 py-2 text-[#5f6b95]">
-                  All Orders
-                </div>
-              </header>
+          <section className="space-y-3">
+            <header className="rounded-xl border border-[#e2e7fb] bg-white px-5 py-3">
+              <h1 className="text-lg font-semibold text-[#253267]">My orders</h1>
+              <p className="mt-0.5 text-xs text-[#727ca4]">{orders.length} order(s)</p>
+            </header>
 
-              {orders.map((order) => {
-                const total = order.items.reduce((sum, item) => sum + item.price, 0);
-                const currency = order.items[0]?.currency ?? APP_CONFIG.defaultCurrency;
+            {orders.map((order) => {
+              const total = order.items.reduce((sum, item) => sum + item.price, 0);
+              const currency = order.items[0]?.currency ?? APP_CONFIG.defaultCurrency;
 
-                return (
-                  <article
-                    className="overflow-hidden rounded-2xl border border-[#dde3fb] bg-white/90"
-                    key={order.id}
-                  >
-                    <div className="flex items-center justify-between bg-gradient-to-r from-[#edf0fe] to-[#e4e8fd] px-6 py-3">
-                      <h3 className="text-2xl font-semibold text-[#2c396a]">
-                        Order #{order.id}
-                      </h3>
-                      <span
-                        className={`rounded-full px-4 py-1 text-sm font-semibold ${statusClassMap[order.status]}`}
+              return (
+                <article
+                  className="overflow-hidden rounded-xl border border-[#dde3fb] bg-white"
+                  key={order.id}
+                >
+                  <div className="flex items-center justify-between border-b border-[#edf0fb] px-5 py-2.5">
+                    <h3 className="font-mono text-xs text-[#5f6b95]">
+                      #{order.id}
+                    </h3>
+                    <span
+                      className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${statusClassMap[order.status]}`}
+                    >
+                      {order.status}
+                    </span>
+                  </div>
+
+                  <div className="px-5 py-2">
+                    {order.items.map((item) => (
+                      <div
+                        className="grid grid-cols-[40px_1fr_auto] items-center gap-3 border-b border-[#edf0fb] py-2.5 last:border-0"
+                        key={item.id}
                       >
-                        {order.status}
-                      </span>
-                    </div>
-
-                    <div className="px-4 py-2 sm:px-6">
-                      {order.items.map((item) => (
-                        <div
-                          className="grid grid-cols-[64px_1fr_auto] items-center gap-3 border-b border-[#edf0fb] py-3"
-                          key={item.id}
-                        >
-                          <img
-                            alt={item.name}
-                            className="h-14 w-14 rounded-lg object-cover"
-                            loading="lazy"
-                            src={item.imageUrl}
-                          />
-                          <div>
-                            <p className="text-lg font-medium text-[#2d3a6b]">{item.name}</p>
-                            <p className="text-lg text-[#55608c]">
-                              {formatPrice(item.price, item.currency)}
-                            </p>
-                          </div>
-                          <p className="text-2xl font-semibold text-[#2b3869]">
-                            {formatPrice(item.price, item.currency)}
-                          </p>
-                        </div>
-                      ))}
-
-                      <div className="flex flex-wrap items-center justify-end gap-3 py-3">
-                        <span className="text-2xl text-[#66719a]">Total</span>
-                        <span className="text-4xl font-semibold text-[#2b3869]">
-                          {formatPrice(total, currency)}
-                        </span>
-                        <button
-                          className="ml-4 h-10 rounded-lg bg-[#4562c8] px-6 text-lg font-semibold text-white"
-                          onClick={() => navigateTo(`/orders/${order.id}`)}
-                          type="button"
-                        >
-                          {order.status === "Cancelled" ? "View Details" : "Track Order"}
-                        </button>
+                        <img
+                          alt={item.name}
+                          className="h-10 w-10 rounded-md object-cover"
+                          loading="lazy"
+                          src={item.imageUrl}
+                        />
+                        <p className="text-sm font-medium text-[#2d3a6b]">{item.name}</p>
+                        <p className="text-sm font-semibold text-[#2b3869]">
+                          {formatPrice(item.price, item.currency)}
+                        </p>
                       </div>
-                    </div>
-                  </article>
-                );
-              })}
-            </section>
-          </div>
-        </main>
+                    ))}
 
-        {data.footer ? (
-          <Suspense fallback={<SectionSkeleton cards={1} />}>
-            <SiteFooter data={data.footer} />
-          </Suspense>
-        ) : null}
-      </div>
+                    <div className="flex flex-wrap items-center justify-end gap-3 py-3">
+                      <span className="text-xs text-[#66719a]">Total</span>
+                      <span className="text-base font-semibold text-[#2b3869]">
+                        {formatPrice(total, currency)}
+                      </span>
+                      <button
+                        className="ml-2 rounded-md bg-[#4562c8] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#3a55b3]"
+                        onClick={() => navigateTo(`/orders/${order.id}`)}
+                        type="button"
+                      >
+                        {order.status === "Cancelled" ? "View details" : "Track order"}
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </section>
+        </div>
+      </main>
+
+      {data.footer ? (
+        <Suspense fallback={<SectionSkeleton cards={1} />}>
+          <SiteFooter data={data.footer} />
+        </Suspense>
+      ) : null}
     </div>
   );
 };

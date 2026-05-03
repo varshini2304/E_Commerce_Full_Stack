@@ -129,18 +129,18 @@ const ProfilePage = () => {
   };
 
   const renderOrders = () => (
-    <section className="space-y-4">
-      <div className="rounded-2xl border border-[#e0e5fa] bg-white p-6">
-        <h1 className="text-4xl font-semibold text-[#2a396c]">My Orders</h1>
-        <div className="mt-4 inline-flex items-center gap-2 rounded-xl border border-[#dbe1f9] px-4 py-2 text-[#626d9b]">
-          <label className="text-sm" htmlFor="order-filter">Filter</label>
+    <section className="space-y-3">
+      <div className="flex items-center justify-between rounded-xl border border-[#e0e5fa] bg-white px-5 py-3">
+        <h1 className="text-lg font-semibold text-[#2a396c]">My orders</h1>
+        <div className="inline-flex items-center gap-2 text-xs text-[#626d9b]">
+          <label htmlFor="order-filter">Filter</label>
           <select
-            className="rounded-md border border-[#d5dcf8] px-2 py-1 text-sm"
+            className="rounded-md border border-[#d5dcf8] px-2 py-1 text-xs"
             id="order-filter"
             onChange={(event) => setOrderFilter(event.target.value as OrderFilter)}
             value={orderFilter}
           >
-            <option value="all">All Orders</option>
+            <option value="all">All orders</option>
             <option value="pending">Pending</option>
             <option value="processing">Processing</option>
             <option value="shipped">Shipped</option>
@@ -152,13 +152,13 @@ const ProfilePage = () => {
 
       {filteredOrders.map((order) => (
         <article
-          className="overflow-hidden rounded-2xl border border-[#dce3fb] bg-white shadow-sm"
+          className="overflow-hidden rounded-xl border border-[#dce3fb] bg-white"
           key={order.id}
         >
-          <header className="flex items-center justify-between bg-gradient-to-r from-[#edf0ff] to-[#f7f8ff] px-5 py-3">
-            <h3 className="text-2xl font-semibold text-[#2c3b70]">Order #{order.orderNumber}</h3>
+          <header className="flex items-center justify-between border-b border-[#edf0fb] px-5 py-2.5">
+            <h3 className="font-mono text-xs text-[#5f6b95]">#{order.orderNumber}</h3>
             <span
-              className={`rounded-full px-4 py-1 text-sm font-semibold ${
+              className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${
                 statusClasses[order.status] ?? "bg-[#c9d0ea] text-white"
               }`}
             >
@@ -167,44 +167,44 @@ const ProfilePage = () => {
             </span>
           </header>
 
-          <div className="space-y-3 px-5 py-4">
+          <div className="space-y-0 px-5 py-2">
             {order.items.map((item, index) => (
               <div
-                className="grid grid-cols-[56px_1fr_auto] items-center gap-3 border-b border-[#eef1fd] pb-3 last:border-0 last:pb-0"
+                className="grid grid-cols-[40px_1fr_auto] items-center gap-3 border-b border-[#eef1fd] py-2.5 last:border-0"
                 key={`${order.id}-${item.productId}-${index}`}
               >
                 <img
                   alt={item.name}
-                  className="h-14 w-14 rounded-lg object-cover"
+                  className="h-10 w-10 rounded-md object-cover"
                   src={item.thumbnail}
                 />
                 <div>
-                  <p className="text-xl font-medium text-[#2f3f74]">{item.name}</p>
-                  {item.quantity > 1 ? <p className="text-sm text-[#7a84ae]">x {item.quantity}</p> : null}
+                  <p className="text-sm font-medium text-[#2f3f74]">{item.name}</p>
+                  {item.quantity > 1 ? <p className="text-xs text-[#7a84ae]">× {item.quantity}</p> : null}
                 </div>
-                <p className="text-xl text-[#46527f]">{formatPrice(item.price)}</p>
+                <p className="text-sm text-[#46527f]">{formatPrice(item.price)}</p>
               </div>
             ))}
           </div>
 
-          <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-[#edf1fd] px-5 py-4">
-            <p className="text-base text-[#616c99]">
-              Total <span className="text-3xl font-semibold text-[#29376b]">{formatPrice(order.total)}</span>
+          <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-[#edf1fd] px-5 py-3">
+            <p className="text-xs text-[#616c99]">
+              Total <span className="text-base font-semibold text-[#29376b]">{formatPrice(order.total)}</span>
             </p>
             <div className="flex items-center gap-2">
               <button
-                className="rounded-lg bg-gradient-to-r from-[#4f69cd] to-[#3557c1] px-5 py-2 text-sm font-semibold text-white"
+                className="rounded-md bg-[#4562c8] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#3a55b3]"
                 onClick={() => handleTrackOrder(order)}
                 type="button"
               >
-                {order.status === "cancelled" ? "View Details" : "Track Order"}
+                {order.status === "cancelled" ? "View details" : "Track order"}
               </button>
               <button
-                className="rounded-lg bg-gradient-to-r from-[#4f69cd] to-[#3557c1] px-4 py-2 text-sm font-semibold text-white"
+                className="rounded-md border border-[#dce3fb] px-3 py-1.5 text-xs font-semibold text-[#445184] hover:bg-[#f4f6ff]"
                 onClick={() => handleBuyAgain(order)}
                 type="button"
               >
-                Buy Again
+                Buy again
               </button>
             </div>
           </footer>
@@ -212,7 +212,7 @@ const ProfilePage = () => {
       ))}
 
       {filteredOrders.length === 0 ? (
-        <section className="rounded-2xl border border-[#dce3fb] bg-white p-6 text-center text-[#65709c]">
+        <section className="rounded-xl border border-[#dce3fb] bg-white p-6 text-center text-xs text-[#65709c]">
           No orders found for this filter.
         </section>
       ) : null}
@@ -220,21 +220,23 @@ const ProfilePage = () => {
   );
 
   const renderWishlist = () => (
-    <section className="rounded-2xl border border-[#e0e5fa] bg-white p-6">
-      <h1 className="text-4xl font-semibold text-[#2a396c]">Wishlist</h1>
-      <p className="mt-2 text-sm text-[#6f79a3]">{wishlistItems.length} saved item(s).</p>
-      <div className="mt-4 space-y-3">
+    <section className="rounded-xl border border-[#e0e5fa] bg-white p-5">
+      <div className="flex items-center justify-between">
+        <h1 className="text-lg font-semibold text-[#2a396c]">Wishlist</h1>
+        <span className="text-xs text-[#6f79a3]">{wishlistItems.length} saved</span>
+      </div>
+      <div className="mt-4 space-y-2">
         {wishlistItems.slice(0, 5).map((item) => (
-          <div className="flex items-center justify-between rounded-xl border border-[#e7ebfb] p-3" key={item.id}>
+          <div className="flex items-center justify-between rounded-lg border border-[#e7ebfb] px-3 py-2" key={item.id}>
             <div className="flex items-center gap-3">
-              <img alt={item.name} className="h-10 w-10 rounded-lg object-cover" src={item.imageUrl} />
+              <img alt={item.name} className="h-9 w-9 rounded-md object-cover" src={item.imageUrl} />
               <div>
-                <p className="text-sm font-semibold text-[#2f3f74]">{item.name}</p>
+                <p className="text-sm font-medium text-[#2f3f74]">{item.name}</p>
                 <p className="text-xs text-[#7a84ae]">{formatPrice(item.price, item.currency)}</p>
               </div>
             </div>
             <button
-              className="rounded-lg bg-[#1f4690] px-3 py-1 text-xs font-semibold text-white"
+              className="rounded-md border border-[#c9d2f4] px-2.5 py-1 text-xs font-semibold text-[#2b3869] hover:border-indigo-400"
               onClick={() => navigateTo("/wishlist")}
               type="button"
             >
@@ -244,142 +246,136 @@ const ProfilePage = () => {
         ))}
       </div>
       <button
-        className="mt-5 rounded-lg bg-gradient-to-r from-[#4f69cd] to-[#3557c1] px-4 py-2 text-sm font-semibold text-white"
+        className="mt-4 rounded-md bg-[#4562c8] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#3a55b3]"
         onClick={() => navigateTo("/wishlist")}
         type="button"
       >
-        Manage Wishlist
+        Manage wishlist
       </button>
     </section>
   );
 
   const renderAddresses = () => (
-    <section className="rounded-2xl border border-[#e0e5fa] bg-white p-6">
-      <h1 className="text-4xl font-semibold text-[#2a396c]">Addresses</h1>
-      <div className="mt-4 grid gap-3 sm:grid-cols-2">
-        <input className="rounded-xl border border-[#dce3fb] p-3" onChange={(event) => setAddress((prev) => ({ ...prev, line1: event.target.value }))} placeholder="Address line" value={address.line1} />
-        <input className="rounded-xl border border-[#dce3fb] p-3" onChange={(event) => setAddress((prev) => ({ ...prev, city: event.target.value }))} placeholder="City" value={address.city} />
-        <input className="rounded-xl border border-[#dce3fb] p-3" onChange={(event) => setAddress((prev) => ({ ...prev, state: event.target.value }))} placeholder="State" value={address.state} />
-        <input className="rounded-xl border border-[#dce3fb] p-3" onChange={(event) => setAddress((prev) => ({ ...prev, postalCode: event.target.value }))} placeholder="Postal Code" value={address.postalCode} />
-        <input className="rounded-xl border border-[#dce3fb] p-3 sm:col-span-2" onChange={(event) => setAddress((prev) => ({ ...prev, country: event.target.value }))} placeholder="Country" value={address.country} />
+    <section className="rounded-xl border border-[#e0e5fa] bg-white p-5">
+      <h1 className="text-lg font-semibold text-[#2a396c]">Addresses</h1>
+      <p className="mt-0.5 text-xs text-[#6f79a3]">Default shipping address.</p>
+      <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
+        <input className="rounded-md border border-[#dce3fb] px-3 py-2 text-sm" onChange={(event) => setAddress((prev) => ({ ...prev, line1: event.target.value }))} placeholder="Address line" value={address.line1} />
+        <input className="rounded-md border border-[#dce3fb] px-3 py-2 text-sm" onChange={(event) => setAddress((prev) => ({ ...prev, city: event.target.value }))} placeholder="City" value={address.city} />
+        <input className="rounded-md border border-[#dce3fb] px-3 py-2 text-sm" onChange={(event) => setAddress((prev) => ({ ...prev, state: event.target.value }))} placeholder="State" value={address.state} />
+        <input className="rounded-md border border-[#dce3fb] px-3 py-2 text-sm" onChange={(event) => setAddress((prev) => ({ ...prev, postalCode: event.target.value }))} placeholder="Postal code" value={address.postalCode} />
+        <input className="rounded-md border border-[#dce3fb] px-3 py-2 text-sm sm:col-span-2" onChange={(event) => setAddress((prev) => ({ ...prev, country: event.target.value }))} placeholder="Country" value={address.country} />
       </div>
       <button
-        className="mt-5 rounded-lg bg-gradient-to-r from-[#4f69cd] to-[#3557c1] px-4 py-2 text-sm font-semibold text-white"
+        className="mt-4 rounded-md bg-[#4562c8] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#3a55b3]"
         onClick={saveAddress}
         type="button"
       >
-        Save Address
+        Save address
       </button>
     </section>
   );
 
   const renderSettings = () => (
-    <section className="rounded-2xl border border-[#e0e5fa] bg-white p-6">
-      <h1 className="text-4xl font-semibold text-[#2a396c]">Account Settings</h1>
-      <div className="mt-4 grid gap-3 sm:grid-cols-2">
-        <input className="rounded-xl border border-[#dce3fb] p-3" onChange={(event) => setAccountSettings((prev) => ({ ...prev, displayName: event.target.value }))} placeholder="Display Name" value={accountSettings.displayName} />
-        <input className="rounded-xl border border-[#dce3fb] p-3" onChange={(event) => setAccountSettings((prev) => ({ ...prev, email: event.target.value }))} placeholder="Email" type="email" value={accountSettings.email} />
+    <section className="rounded-xl border border-[#e0e5fa] bg-white p-5">
+      <h1 className="text-lg font-semibold text-[#2a396c]">Account settings</h1>
+      <p className="mt-0.5 text-xs text-[#6f79a3]">Display name and contact email.</p>
+      <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
+        <input className="rounded-md border border-[#dce3fb] px-3 py-2 text-sm" onChange={(event) => setAccountSettings((prev) => ({ ...prev, displayName: event.target.value }))} placeholder="Display name" value={accountSettings.displayName} />
+        <input className="rounded-md border border-[#dce3fb] px-3 py-2 text-sm" onChange={(event) => setAccountSettings((prev) => ({ ...prev, email: event.target.value }))} placeholder="Email" type="email" value={accountSettings.email} />
       </div>
-      <div className="mt-5 flex gap-2">
+      <div className="mt-4 flex gap-2">
         <button
-          className="rounded-lg bg-gradient-to-r from-[#4f69cd] to-[#3557c1] px-4 py-2 text-sm font-semibold text-white"
+          className="rounded-md bg-[#4562c8] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#3a55b3]"
           onClick={saveAccountSettings}
           type="button"
         >
-          Save Settings
+          Save settings
         </button>
         <button
-          className="rounded-lg border border-[#dce3fb] px-4 py-2 text-sm font-semibold text-[#445184]"
+          className="rounded-md border border-[#dce3fb] px-3 py-1.5 text-xs font-semibold text-[#445184] hover:bg-[#f4f6ff]"
           onClick={() => navigateTo("/profile")}
           type="button"
         >
-          Refresh Orders
+          Refresh
         </button>
       </div>
     </section>
   );
 
+  const navItems: { id: ProfileView | "logout"; label: string; danger?: boolean }[] = [
+    { id: "orders", label: "My orders" },
+    { id: "wishlist", label: "Wishlist" },
+    { id: "addresses", label: "Addresses" },
+    { id: "settings", label: "Account settings" },
+    { id: "logout", label: "Logout", danger: true },
+  ];
+
   return (
-    <div className="mx-auto w-full px-4 sm:px-6 lg:px-8">
-      <div className="overflow-hidden rounded-[2rem] bg-white shadow-[0_25px_80px_rgba(48,61,118,0.25)]">
-        {homeData.navigation ? (
-          <Suspense fallback={<Loader />}>
-            <TopNav data={homeData.navigation} />
-          </Suspense>
-        ) : null}
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,#e0e2f6,#cbcde8_45%,#d9daee_80%)]">
+      {homeData.navigation ? (
+        <Suspense fallback={<Loader />}>
+          <TopNav data={homeData.navigation} />
+        </Suspense>
+      ) : null}
 
-        <main className="bg-gradient-to-b from-[#f4f5ff] via-[#eef0fc] to-[#edf0ff] p-4 sm:p-6 md:p-8">
-          <section className="grid gap-5 lg:grid-cols-[240px_1fr]">
-            <aside className="rounded-2xl border border-[#e0e5fa] bg-white p-5 shadow-sm">
-              <div className="mx-auto h-24 w-24 overflow-hidden rounded-full border border-[#d8dff8]">
-                <img
-                  alt={profileData.user.name}
-                  className="h-full w-full object-cover"
-                  src={profileData.user.avatarUrl}
-                />
+      <main className="px-6 py-8 sm:px-8 lg:px-12">
+        <section className="grid gap-5 lg:grid-cols-[220px_1fr]">
+          <aside className="h-fit rounded-xl border border-[#e0e5fa] bg-white p-4 shadow-sm">
+            <div className="mx-auto h-16 w-16 overflow-hidden rounded-full border border-[#d8dff8]">
+              <img
+                alt={profileData.user.name}
+                className="h-full w-full object-cover"
+                src={profileData.user.avatarUrl}
+              />
+            </div>
+            <h2 className="mt-3 text-center text-sm font-semibold text-[#2a396c]">{profileData.user.name}</h2>
+            <p className="mt-0.5 text-center text-xs text-[#7a84ae]">{profileData.user.email}</p>
+            <div className="mt-4 space-y-0.5 border-t border-[#e9edfb] pt-3">
+              {navItems.map((item) => {
+                const isActive = item.id !== "logout" && activeView === item.id;
+                const onClick =
+                  item.id === "logout" ? handleLogout : () => setActiveView(item.id as ProfileView);
+                return (
+                  <button
+                    key={item.id}
+                    onClick={onClick}
+                    type="button"
+                    className={`block w-full rounded-md px-3 py-2 text-left text-sm ${
+                      isActive
+                        ? "bg-[#dfe4ff] font-medium text-[#2e3d72]"
+                        : item.danger
+                          ? "text-[#d85c58] hover:bg-[#fdf3f2]"
+                          : "text-[#5f6a97] hover:bg-[#f4f6ff]"
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                );
+              })}
+            </div>
+          </aside>
+
+          <section className="space-y-3">
+            {feedback ? (
+              <div className="rounded-lg border border-[#dce3fb] bg-white px-3 py-2 text-xs text-[#546090]">
+                {feedback}
               </div>
-              <h2 className="mt-4 text-center text-2xl font-semibold text-[#2a396c]">{profileData.user.name}</h2>
-              <p className="mt-1 text-center text-sm text-[#7a84ae]">{profileData.user.email}</p>
-              <div className="mt-5 border-t border-[#e9edfb] pt-4">
-                <button
-                  className={`mb-2 block w-full rounded-xl px-4 py-3 text-left text-sm font-semibold ${activeView === "orders" ? "bg-[#dfe4ff] text-[#2e3d72]" : "text-[#5f6a97]"}`}
-                  onClick={() => setActiveView("orders")}
-                  type="button"
-                >
-                  My Orders
-                </button>
-                <button
-                  className={`mb-2 block w-full rounded-xl px-4 py-3 text-left text-sm font-semibold ${activeView === "wishlist" ? "bg-[#dfe4ff] text-[#2e3d72]" : "text-[#5f6a97]"}`}
-                  onClick={() => setActiveView("wishlist")}
-                  type="button"
-                >
-                  Wishlist
-                </button>
-                <button
-                  className={`mb-2 block w-full rounded-xl px-4 py-3 text-left text-sm font-semibold ${activeView === "addresses" ? "bg-[#dfe4ff] text-[#2e3d72]" : "text-[#5f6a97]"}`}
-                  onClick={() => setActiveView("addresses")}
-                  type="button"
-                >
-                  Addresses
-                </button>
-                <button
-                  className={`mb-2 block w-full rounded-xl px-4 py-3 text-left text-sm font-semibold ${activeView === "settings" ? "bg-[#dfe4ff] text-[#2e3d72]" : "text-[#5f6a97]"}`}
-                  onClick={() => setActiveView("settings")}
-                  type="button"
-                >
-                  Account Settings
-                </button>
-                <button
-                  className="block w-full rounded-xl px-4 py-3 text-left text-sm font-medium text-[#d85c58]"
-                  onClick={handleLogout}
-                  type="button"
-                >
-                  Logout
-                </button>
-              </div>
-            </aside>
+            ) : null}
 
-            <section className="space-y-4">
-              {feedback ? (
-                <div className="rounded-xl border border-[#dce3fb] bg-white px-4 py-3 text-sm text-[#546090]">
-                  {feedback}
-                </div>
-              ) : null}
-
-              {activeView === "orders" ? renderOrders() : null}
-              {activeView === "wishlist" ? renderWishlist() : null}
-              {activeView === "addresses" ? renderAddresses() : null}
-              {activeView === "settings" ? renderSettings() : null}
-            </section>
+            {activeView === "orders" ? renderOrders() : null}
+            {activeView === "wishlist" ? renderWishlist() : null}
+            {activeView === "addresses" ? renderAddresses() : null}
+            {activeView === "settings" ? renderSettings() : null}
           </section>
-        </main>
+        </section>
+      </main>
 
-        {homeData.footer ? (
-          <Suspense fallback={<SectionSkeleton cards={1} />}>
-            <SiteFooter data={homeData.footer} />
-          </Suspense>
-        ) : null}
-      </div>
+      {homeData.footer ? (
+        <Suspense fallback={<SectionSkeleton cards={1} />}>
+          <SiteFooter data={homeData.footer} />
+        </Suspense>
+      ) : null}
     </div>
   );
 };

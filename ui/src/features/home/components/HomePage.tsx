@@ -28,7 +28,6 @@ const HomePage = () => {
 
   const handleAddToWishList = (product: ProductData) => {
     addProductToWishList(product);
-    window.location.href = "/wishlist";
   };
 
   const handleOpenProduct = (product: ProductData) => {
@@ -100,6 +99,8 @@ const HomePage = () => {
                     header={sectionHeaders.trendingProducts}
                     onProductAction={handleAddToCart}
                     onProductSelect={handleOpenProduct}
+                    onProductWishlist={handleAddToWishList}
+                    onViewAll={() => navigateTo("/products")}
                     products={trendingProducts.slice(0, UI_LIMITS.trendingVisibleCount)}
                     compact={false}
                   />
@@ -125,6 +126,8 @@ const HomePage = () => {
                   header={sectionHeaders.featuredProducts}
                   onProductAction={handleAddToCart}
                   onProductSelect={handleOpenProduct}
+                  onProductWishlist={handleAddToWishList}
+                  onViewAll={() => navigateTo("/products")}
                   products={featuredProducts.slice(0, UI_LIMITS.featuredVisibleCount)}
                   compact={false}
                 />

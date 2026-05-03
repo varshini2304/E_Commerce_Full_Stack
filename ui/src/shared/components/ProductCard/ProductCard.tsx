@@ -8,11 +8,12 @@ interface ProductCardProps {
   actionLabel: string;
   variant?: "default" | "compact";
   onAction?: (product: ProductData) => void;
+  onWishlist?: (product: ProductData) => void;
   onCardClick?: (product: ProductData) => void;
 }
 
 export const ProductCard = memo(
-  ({ product, actionLabel, variant = "compact", onAction, onCardClick }: ProductCardProps) => {
+  ({ product, actionLabel, variant = "compact", onAction, onWishlist, onCardClick }: ProductCardProps) => {
     const formatter = new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: product.currency ?? APP_CONFIG.defaultCurrency,
@@ -26,7 +27,7 @@ export const ProductCard = memo(
 
     return (
       <article
-        className={`group overflow-hidden rounded-2xl border border-[#e3e7f8] bg-white p-2 shadow-sm transition-shadow hover:shadow-md ${onCardClick ? "cursor-pointer" : ""}`}
+        className={`group relative overflow-hidden rounded-2xl border border-[#e3e7f8] bg-white p-2 shadow-sm transition-shadow hover:shadow-md ${onCardClick ? "cursor-pointer" : ""}`}
         onClick={() => onCardClick?.(product)}
         onKeyDown={(event) => {
           if (!onCardClick) {
@@ -51,6 +52,31 @@ export const ProductCard = memo(
             <span className="absolute right-2 top-2 rounded-full bg-[#f47f74] px-2 py-0.5 text-[11px] font-semibold text-white">
               {product.badge}
             </span>
+          ) : null}
+          {onWishlist ? (
+            <button
+              type="button"
+              aria-label="Add to wishlist"
+              onClick={(event) => {
+                event.stopPropagation();
+                onWishlist(product);
+              }}
+              className="absolute left-2 top-2 grid h-8 w-8 place-items-center rounded-full bg-white/90 text-[#c24545] shadow-sm backdrop-blur transition hover:bg-white hover:text-[#a63a3a]"
+            >
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"
+                />
+              </svg>
+            </button>
           ) : null}
         </div>
         <div className="space-y-2 px-1 pb-1 pt-3">

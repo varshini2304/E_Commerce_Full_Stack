@@ -4,6 +4,7 @@ import { Loader, ProductCard, SectionSkeleton } from "../../../shared/components
 import { APP_CONFIG, UI_MESSAGES } from "../../../shared/constants/config";
 import { ProductData } from "../../../types/home";
 import { addProductToCart } from "../../cart/cartStorage";
+import { addProductToWishList } from "../../wishlist/WishListStorage";
 
 const TopNav = lazy(() => import("../../home/components/TopNav"));
 const SiteFooter = lazy(() => import("../../home/components/SiteFooter"));
@@ -45,6 +46,10 @@ const CategoryPage = () => {
     window.location.href = "/cart";
   };
 
+  const onAddToWishList = (product: ProductData) => {
+    addProductToWishList(product);
+  };
+
   return (
     <div className={`mx-auto w-full ${APP_CONFIG.maxContainerWidthClass} px-4 sm:px-6 lg:px-8`}>
       <div className="overflow-hidden rounded-[2rem] bg-white shadow-[0_25px_80px_rgba(48,61,118,0.25)]">
@@ -71,6 +76,7 @@ const CategoryPage = () => {
                 actionLabel="Add to cart"
                 key={product.id}
                 onAction={onAddToCart}
+                onWishlist={onAddToWishList}
                 product={product}
                 variant="default"
               />

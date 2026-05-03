@@ -14,6 +14,7 @@ import CartPage from "../features/cart/components/CartPage";
 import ProfilePage from "../features/profile/components/ProfilePage";
 import CategoryPage from "../features/products/components/CategoryPage";
 import ProductDisplayPage from "../features/products/components/ProductDisplayPage";
+import AllProductsPage from "../features/products/components/AllProductsPage";
 import { MainLayout } from "../layouts/MainLayout";
 import { APP_NAVIGATE_EVENT } from "../shared/utils/navigation";
 import WishListPage from "../features/wishlist/components/WishListPage";
@@ -49,6 +50,14 @@ export const AppRouter = () => {
     return <LandingPage />;
   }
 
+  // ── About / Contact / Privacy / Terms / Products (full-screen pages, own chrome) ──
+  if (pathname.startsWith("/about")) return <AboutPage />;
+  if (pathname.startsWith("/contact")) return <ContactPage />;
+  if (pathname.startsWith("/privacy")) return <PrivacyPolicyPage />;
+  if (pathname.startsWith("/terms")) return <TermsPage />;
+  if (pathname === "/products" || pathname.startsWith("/products/")) return <AllProductsPage />;
+  if (pathname === "/product" || pathname.startsWith("/product/")) return <ProductDisplayPage />;
+
   // ── Vendor routes (render outside MainLayout — own full-screen layout) ──
   const isVendorPath = pathname.startsWith("/vendor");
   if (isVendorPath) {
@@ -70,7 +79,6 @@ export const AppRouter = () => {
   const isAdminInventoryPage = pathname.startsWith("/admin/inventory");
   const isAdminOrderManagementPage = pathname.startsWith("/admin/orders/manage");
   const isProductPage = pathname === "/product" || pathname.startsWith("/product/");
-  const isProductsPage = pathname === "/products" || pathname.startsWith("/products/");
   const isCategoryPage = pathname.startsWith("/category/");
   const isCartPage = pathname.startsWith("/cart");
   const isCheckoutPage = pathname.startsWith("/checkout");
@@ -110,8 +118,6 @@ export const AppRouter = () => {
       ) : isProfilePage ? (
         <ProfilePage />
       ) : isCategoryPage ? (
-        <CategoryPage />
-      ) : isProductsPage ? (
         <CategoryPage />
       ) : isOrderSuccessPage ? (
         <OrderSuccessPage />

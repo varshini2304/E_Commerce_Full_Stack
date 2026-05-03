@@ -1,7 +1,12 @@
+import { lazy, Suspense } from "react";
 import { navigateTo } from "../../../shared/utils/navigation";
+import { useHomeData } from "../../home/hooks/useHomeData";
+import Loader from "./Loader";
+
+const TopNav = lazy(() => import("../../home/components/TopNav"));
+const SiteFooter = lazy(() => import("../../home/components/SiteFooter"));
 
 const goShop = () => navigateTo("/shop");
-const goHome = () => navigateTo("/");
 const goContact = () => navigateTo("/contact");
 
 const stats = [
@@ -55,43 +60,25 @@ const team = [
 ];
 
 const AboutPage = () => {
-  return (
-    <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
-      <div className="overflow-hidden rounded-[2rem] bg-white shadow-[0_25px_80px_rgba(48,61,118,0.25)]">
-        {/* Header */}
-        <header className="flex items-center justify-between border-b border-[#e6eafc] bg-white px-6 py-4">
-          <button
-            type="button"
-            onClick={goHome}
-            className="flex items-center gap-2 text-base font-bold tracking-tight text-[#2b3869]"
-          >
-            <span className="grid h-8 w-8 place-items-center rounded-lg bg-indigo-500 text-white">FS</span>
-            FullStack Commerce
-          </button>
-          <nav className="hidden gap-5 text-sm text-[#5f6a96] sm:flex">
-            <a href="/" className="hover:text-[#2b3869]">Home</a>
-            <a href="/shop" className="hover:text-[#2b3869]">Store</a>
-            <a href="/about" className="font-semibold text-[#2b3869]">About</a>
-            <a href="/contact" className="hover:text-[#2b3869]">Contact</a>
-          </nav>
-          <button
-            type="button"
-            onClick={goShop}
-            className="rounded-lg bg-indigo-500 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-600"
-          >
-            Browse Store
-          </button>
-        </header>
+  const { data: homeData } = useHomeData();
 
-        <main className="space-y-10 bg-[radial-gradient(circle_at_top,#eceefe,#dde1fa_55%,#e8eafd)] p-6 md:p-10">
+  return (
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,#e0e2f6,#cbcde8_45%,#d9daee_80%)]">
+      {homeData?.navigation ? (
+        <Suspense fallback={<Loader />}>
+          <TopNav data={homeData.navigation} />
+        </Suspense>
+      ) : null}
+
+      <main className="space-y-10 px-6 py-10 sm:px-8 lg:px-12">
           {/* Hero */}
           <section className="rounded-2xl border border-[#dfe5fb] bg-white p-8 shadow-sm md:p-12">
-            <span className="inline-block rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold tracking-wider text-indigo-700 uppercase">
+            <span className="inline-block rounded-full bg-[#e9edff] px-3 py-1 text-xs font-semibold tracking-wider text-[#334794] uppercase">
               About the project
             </span>
             <h1 className="mt-4 text-4xl font-extrabold leading-tight text-[#1f2a4d] md:text-5xl">
               An e-commerce platform built to{" "}
-              <span className="bg-gradient-to-r from-indigo-500 to-fuchsia-500 bg-clip-text text-transparent">
+              <span className="text-[#1f4690]">
                 show how the whole stack fits together.
               </span>
             </h1>
@@ -105,14 +92,14 @@ const AboutPage = () => {
               <button
                 type="button"
                 onClick={goShop}
-                className="rounded-xl bg-indigo-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-600"
+                className="rounded-md bg-[#1f4690] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a3a75]"
               >
                 Try the demo
               </button>
               <button
                 type="button"
                 onClick={goContact}
-                className="rounded-xl border border-[#c9d2f4] px-5 py-2.5 text-sm font-semibold text-[#2b3869] hover:border-indigo-400"
+                className="rounded-md border border-[#dbe1fb] bg-white px-4 py-2 text-sm font-semibold text-[#2b3869] hover:border-[#c4cdef]"
               >
                 Get in touch
               </button>
@@ -126,7 +113,7 @@ const AboutPage = () => {
                 key={s.label}
                 className="rounded-2xl border border-[#dfe5fb] bg-white p-5 text-center shadow-sm"
               >
-                <div className="text-3xl font-extrabold text-indigo-600">{s.value}</div>
+                <div className="text-2xl font-bold text-[#1f4690]">{s.value}</div>
                 <div className="mt-1 text-sm font-semibold text-[#2b3869]">{s.label}</div>
                 <div className="mt-1 text-xs text-[#7a82a8]">{s.note}</div>
               </div>
@@ -196,7 +183,7 @@ const AboutPage = () => {
               {milestones.map((m) => (
                 <li key={m.phase} className="flex gap-4">
                   <div className="flex-none">
-                    <span className="grid h-12 w-12 place-items-center rounded-full bg-indigo-100 font-bold text-indigo-700">
+                    <span className="grid h-10 w-10 place-items-center rounded-full bg-[#e9edff] text-xs font-bold text-[#334794]">
                       {m.phase}
                     </span>
                   </div>
@@ -221,7 +208,7 @@ const AboutPage = () => {
                   key={t.role}
                   className="rounded-xl border border-[#e6eafc] bg-[#f8f9ff] p-5"
                 >
-                  <h3 className="text-sm font-semibold tracking-wider text-indigo-700 uppercase">
+                  <h3 className="text-xs font-semibold tracking-wider text-[#334794] uppercase">
                     {t.role}
                   </h3>
                   <p className="mt-2 text-sm leading-relaxed text-[#5f6a96]">{t.body}</p>
@@ -259,7 +246,7 @@ const AboutPage = () => {
               ].map((tag) => (
                 <span
                   key={tag}
-                  className="rounded-md bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700"
+                  className="rounded-md bg-[#f4f6ff] px-2.5 py-1 text-xs font-medium text-[#334794]"
                 >
                   {tag}
                 </span>
@@ -268,7 +255,7 @@ const AboutPage = () => {
           </section>
 
           {/* CTA */}
-          <section className="rounded-2xl border border-[#dfe5fb] bg-gradient-to-br from-indigo-500 to-fuchsia-500 p-8 text-center text-white shadow-sm md:p-10">
+          <section className="rounded-2xl border border-[#dfe5fb] bg-[#1f4690] p-8 text-center text-white shadow-sm md:p-10">
             <h2 className="text-2xl font-bold">Ready to look around?</h2>
             <p className="mx-auto mt-2 max-w-xl text-sm text-white/90">
               The store is pre-seeded with demo accounts. Sign in, place an order, then peek at the
@@ -278,7 +265,7 @@ const AboutPage = () => {
               <button
                 type="button"
                 onClick={goShop}
-                className="rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-indigo-700 hover:bg-indigo-50"
+                className="rounded-md bg-white px-4 py-2 text-sm font-semibold text-[#1f4690] hover:bg-[#f4f6ff]"
               >
                 Open the store
               </button>
@@ -293,15 +280,11 @@ const AboutPage = () => {
           </section>
         </main>
 
-        <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-[#e6eafc] bg-white px-6 py-4 text-xs text-[#7a82a8]">
-          <div>© FullStack Commerce — built to be read, forked, and shipped.</div>
-          <div className="flex gap-4">
-            <a href="/privacy" className="hover:text-[#2b3869]">Privacy</a>
-            <a href="/terms" className="hover:text-[#2b3869]">Terms</a>
-            <a href="/contact" className="hover:text-[#2b3869]">Contact</a>
-          </div>
-        </footer>
-      </div>
+      {homeData?.footer ? (
+        <Suspense fallback={<Loader />}>
+          <SiteFooter data={homeData.footer} />
+        </Suspense>
+      ) : null}
     </div>
   );
 };

@@ -9,6 +9,8 @@ interface FeaturedProductsProps {
   compact?: boolean;
   onProductAction?: (product: ProductData) => void;
   onProductSelect?: (product: ProductData) => void;
+  onProductWishlist?: (product: ProductData) => void;
+  onViewAll?: () => void;
 }
 
 const FeaturedProducts = memo(
@@ -19,9 +21,16 @@ const FeaturedProducts = memo(
     compact = true,
     onProductAction,
     onProductSelect,
+    onProductWishlist,
+    onViewAll,
   }: FeaturedProductsProps) => (
     <section className="space-y-6">
-      <SectionHeader title={header.title} subtitle={header.subtitle} />
+      <SectionHeader
+        title={header.title}
+        subtitle={header.subtitle}
+        actionLabel={onViewAll ? "View all products" : undefined}
+        onAction={onViewAll}
+      />
       <div
         className={`grid grid-cols-1 gap-4 sm:grid-cols-2 ${
           compact ? "xl:grid-cols-3" : "lg:grid-cols-4"
@@ -33,6 +42,7 @@ const FeaturedProducts = memo(
             key={product.id}
             onAction={onProductAction}
             onCardClick={onProductSelect}
+            onWishlist={onProductWishlist}
             product={product}
             variant={compact ? "compact" : "default"}
           />
