@@ -11,7 +11,10 @@ import type {
 } from "../types/vendor.types";
 
 // ─── Axios Instance ────────────────────────────────────────────
-const api = axios.create({ baseURL: "/api" });
+// Uses VITE_API_BASE_URL so the same code works in dev (proxy) and prod (Render)
+const baseURL = `${(import.meta.env.VITE_API_BASE_URL ?? "").replace(/\/$/, "")}/api`;
+
+const api = axios.create({ baseURL });
 
 // Attach JWT from localStorage on every request
 api.interceptors.request.use((config) => {
@@ -38,35 +41,35 @@ export const vendorAuthApi = {
       .then((r) => r.data.data),
 };
 
-// ─── Products API ──────────────────────────────────────────────
+// ─── Products API (vendor-scoped, JWT identifies the vendor) ──
 export const vendorProductsApi = {
-  list: (vendorId: string, page = 1, limit = 20) =>
+  list: (_vendorId: string, page = 1, limit = 20) =>
     api
-      .get<ApiResponse<ProductsPage>>("/products", {
-        params: { vendorId, page, limit },
+      .get<ApiResponse<ProductsPage>>("/vendors/products", {
+        params: { page, limit },
       })
       .then((r) => r.data.data),
 
   create: (data: ProductRequest) =>
     api
-      .post<ApiResponse<Product>>("/products", data)
+      .post<ApiResponse<Product>>("/vendors/products", data)
       .then((r) => r.data.data),
 
   update: (id: string, data: ProductRequest) =>
     api
-      .put<ApiResponse<Product>>(`/products/${id}`, data)
+      .put<ApiResponse<Product>>(`/vendors/products/${id}`, data)
       .then((r) => r.data.data),
 
   delete: (id: string) =>
     api
-      .delete<ApiResponse<Product>>(`/products/${id}`)
+      .delete<ApiResponse<Product>>(`/vendors/products/${id}`)
       .then((r) => r.data.data),
 };
 
 // ─── Inventory API ─────────────────────────────────────────────
 export const vendorInventoryApi = {
-  listByVendor: (vendorId: string) =>
+  listByVendor: (_vendorId: string) =>
     api
-      .get<ApiResponse<InventoryItem[]>>(`/inventory/vendor/${vendorId}`)
+      .get<ApiResponse<InventoryItem[]>>("/vendors/inventory")
       .then((r) => r.data.data),
 };

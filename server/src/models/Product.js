@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 const productSchema = new mongoose.Schema(
   {
+    vendorId: { type: mongoose.Schema.Types.ObjectId, ref: "Vendor", index: true, default: null },
     name: { type: String, required: true, trim: true },
     slug: { type: String, required: true, unique: true, index: true },
     description: { type: String, required: true },

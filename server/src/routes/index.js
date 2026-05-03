@@ -9,6 +9,7 @@ import { productRouter } from "./productRoutes.js";
 import { reviewRouter } from "./reviewRoutes.js";
 import { newsletterRouter } from "./newsletterRoutes.js";
 import { profilePageRouter } from "./profilePageRoutes.js";
+import { vendorRouter } from "./vendorRoutes.js";
 
 export const apiRouter = Router();
 
@@ -22,3 +23,4 @@ apiRouter.use("/auth", authRouter);
 apiRouter.use("/admin", adminRouter);
 apiRouter.use("/newsletter", newsletterRouter);
 apiRouter.use("/profile-page", profilePageRouter);
+apiRouter.use("/vendors", vendorRouter);
