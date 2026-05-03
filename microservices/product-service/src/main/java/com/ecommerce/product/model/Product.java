@@ -23,6 +23,9 @@ public class Product implements Serializable {
     @Id
     private String id;
 
+    @Indexed
+    private String vendorId;
+
     private String name;
 
     @Indexed(unique = true)

@@ -27,4 +27,6 @@ public interface ProductRepository extends MongoRepository<Product, String> {
     List<Product> findByIsActiveTrueOrderByRatingsAverageDescSalesCountDesc(Pageable pageable);
 
     List<Product> findByIsActiveTrueOrderBySalesCountDescCreatedAtDesc(Pageable pageable);
+
+    Page<Product> findByVendorIdAndIsActiveTrue(String vendorId, Pageable pageable);
 }

@@ -13,6 +13,7 @@ import java.util.List;
 public class ProductResponse {
 
     private String id;
+    private String vendorId;
     private String name;
     private String slug;
     private String description;

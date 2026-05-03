@@ -223,3 +223,4 @@ Node API base URL: `http://localhost:5000/api`
 - [Spring backend guide](server-spring/README.md)
 - [Node backend guide](server/README.md)
 - [Frontend notes](ui/README.md)
+- [Render deployment guide](DEPLOY_RENDER.md)

@@ -22,23 +22,41 @@ import PrivacyPolicyPage from "../features/privacy-policy/components/PrivacyPoli
 import TermsPage from "../features/terms/components/TermsPage";
 import AboutPage from "../features/about/components/AboutPage";
 
+// ── Vendor Dashboard ──────────────────────────────────────────
+import VendorLoginPage from "../features/vendor/pages/VendorLoginPage";
+import VendorDashboardPage from "../features/vendor/pages/VendorDashboardPage";
+import VendorManageProductsPage from "../features/vendor/pages/VendorManageProductsPage";
+import VendorAddProductPage from "../features/vendor/pages/VendorAddProductPage";
+import VendorEditProductPage from "../features/vendor/pages/VendorEditProductPage";
+import VendorInventoryPage from "../features/vendor/pages/VendorInventoryPage";
+
 export const AppRouter = () => {
   const [pathname, setPathname] = useState(() => window.location.pathname);
 
   useEffect(() => {
-    const syncPathname = () => {
-      setPathname(window.location.pathname);
-    };
-
+    const syncPathname = () => setPathname(window.location.pathname);
     window.addEventListener("popstate", syncPathname);
     window.addEventListener(APP_NAVIGATE_EVENT, syncPathname);
-
     return () => {
       window.removeEventListener("popstate", syncPathname);
       window.removeEventListener(APP_NAVIGATE_EVENT, syncPathname);
     };
   }, []);
 
+  // ── Vendor routes (render outside MainLayout — own full-screen layout) ──
+  const isVendorPath = pathname.startsWith("/vendor");
+  if (isVendorPath) {
+    if (pathname === "/vendor/login") return <VendorLoginPage />;
+    if (pathname === "/vendor/dashboard") return <VendorDashboardPage />;
+    if (pathname === "/vendor/products/new") return <VendorAddProductPage />;
+    if (pathname.startsWith("/vendor/products/edit/")) return <VendorEditProductPage />;
+    if (pathname.startsWith("/vendor/products")) return <VendorManageProductsPage />;
+    if (pathname.startsWith("/vendor/inventory")) return <VendorInventoryPage />;
+    // Fallback: redirect to dashboard
+    return <VendorDashboardPage />;
+  }
+
+  // ── Admin & Customer routes (inside MainLayout) ──
   const isAdminLoginPage = pathname.startsWith("/admin/login");
   const isAdminDashboardPage = pathname.startsWith("/admin/dashboard");
   const isAdminAddProductPage = pathname.startsWith("/admin/products/new");
@@ -90,7 +108,7 @@ export const AppRouter = () => {
         <CategoryPage />
       ) : isOrderSuccessPage ? (
         <OrderSuccessPage />
-      ) :isWishlistPage ? (
+      ) : isWishlistPage ? (
         <WishListPage />
       ) : isContactPage ? (
         <ContactPage />
@@ -100,7 +118,7 @@ export const AppRouter = () => {
         <TermsPage />
       ) : isAboutPage ? (
         <AboutPage />
-       ): isProductPage ? (
+      ) : isProductPage ? (
         <ProductDisplayPage />
       ) : (
         <HomePage />
@@ -108,3 +126,4 @@ export const AppRouter = () => {
     </MainLayout>
   );
 };
+

@@ -13,6 +13,8 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * Inventory service with atomic MongoDB operations and optimistic locking.
  *
@@ -22,6 +24,10 @@ import org.springframework.stereotype.Service;
  *   1. Atomic $inc operations via MongoTemplate (no read-modify-write race)
  *   2. @Version optimistic locking on the Inventory document
  *   3. @Retryable for automatic retry on OptimisticLockingFailureException
+ *
+ * ─── Vendor Integration ───
+ * Inventory is now linked to both productId AND vendorId.
+ * Initial stock is auto-created via Kafka "product-created" event.
  */
 @Slf4j
 @Service
@@ -45,6 +51,39 @@ public class InventoryService {
                             .build();
                     return inventoryRepository.save(inv);
                 });
+    }
+
+    /**
+     * Create initial stock entry when a product is created.
+     *
+     * ─── Idempotency ───
+     * Checks if inventory already exists for the productId.
+     * If it does, this is a duplicate Kafka event — skip silently.
+     * This prevents duplicate inventory entries on Kafka retries.
+     */
+    public void createInitialStock(String productId, String vendorId, int stock) {
+        // Idempotency check — if inventory already exists, skip
+        if (inventoryRepository.findByProductId(productId).isPresent()) {
+            log.info("Inventory already exists for productId={}, skipping duplicate event", productId);
+            return;
+        }
+
+        Inventory inventory = Inventory.builder()
+                .productId(productId)
+                .vendorId(vendorId)
+                .availableStock(stock)
+                .reservedStock(0)
+                .build();
+
+        inventoryRepository.save(inventory);
+        log.info("Initial stock created: productId={}, vendorId={}, stock={}", productId, vendorId, stock);
+    }
+
+    /**
+     * Get all inventory entries for a vendor.
+     */
+    public List<Inventory> getInventoryByVendor(String vendorId) {
+        return inventoryRepository.findByVendorId(vendorId);
     }
 
     /**
@@ -114,11 +153,22 @@ public class InventoryService {
     }
 
     /**
-     * Set stock for a product (admin operation).
+     * Set stock for a product (vendor operation).
+     * Validates vendor ownership via vendorId.
      */
-    public Inventory setStock(String productId, int stock) {
+    public Inventory setStock(String productId, int stock, String vendorId) {
         Inventory inventory = getInventory(productId);
+
+        // If vendorId is provided, validate ownership
+        if (vendorId != null && inventory.getVendorId() != null
+                && !vendorId.equals(inventory.getVendorId())) {
+            throw new RuntimeException("You can only update stock for your own products");
+        }
+
         inventory.setAvailableStock(stock);
+        if (vendorId != null && inventory.getVendorId() == null) {
+            inventory.setVendorId(vendorId);
+        }
         return inventoryRepository.save(inventory);
     }
 }

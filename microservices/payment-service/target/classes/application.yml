@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: payment-service
+
+  # ── MongoDB ──
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/payment_db
+
+  # ── Kafka ──
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+  # ── Jackson ──
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    default-property-inclusion: non_null
+
+# ── Server ──
+server:
+  port: 8083
+
+# ── Logging ──
+logging:
+  level:
+    com.ecommerce.payment: DEBUG
+    org.apache.kafka: WARN

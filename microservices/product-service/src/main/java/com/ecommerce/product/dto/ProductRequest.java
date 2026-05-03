@@ -6,6 +6,15 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.util.List;
 
+/**
+ * Product creation/update request DTO.
+ *
+ * ─── Security Note ───
+ * vendorId is NOT included in this DTO.
+ * It is always taken from the trusted X-User-Id header
+ * set by the API Gateway after JWT validation.
+ * This prevents clients from faking the vendorId.
+ */
 @Data
 @Builder
 @NoArgsConstructor

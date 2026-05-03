@@ -39,6 +39,9 @@ public class Inventory implements Serializable {
     @Indexed(unique = true)
     private String productId;
 
+    @Indexed
+    private String vendorId;
+
     @Builder.Default
     private Integer availableStock = 0;
 

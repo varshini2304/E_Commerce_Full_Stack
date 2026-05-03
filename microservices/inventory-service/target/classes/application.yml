@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: inventory-service
+
+  # ── MongoDB ──
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/inventory_db
+
+  # ── Kafka ──
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: inventory-service-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+
+  # ── Jackson ──
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    default-property-inclusion: non_null
+
+# ── Server ──
+server:
+  port: 8084
+
+# ── Logging ──
+logging:
+  level:
+    com.ecommerce.inventory: DEBUG
+    org.apache.kafka: WARN

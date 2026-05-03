@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: vendor-service
+
+  # ── MongoDB ──
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/vendor_db
+
+  # ── Jackson ──
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    default-property-inclusion: non_null
+
+# ── Server ──
+server:
+  port: 8085
+
+# ── JWT Config ──
+app:
+  jwt:
+    secret: f0e1d2c3b4a5968778695a4b3c2d1e0f9a8b7c6d5e4f3021a9b8c7d6e5f40312
+    expiration-ms: 86400000  # 24 hours
+
+# ── Logging ──
+logging:
+  level:
+    com.ecommerce.vendor: DEBUG
+    org.springframework.data.mongodb: INFO
+    org.springframework.security: INFO

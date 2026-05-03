@@ -2,6 +2,7 @@ package com.ecommerce.inventory.kafka;
 
 import com.ecommerce.inventory.event.OrderCreatedEvent;
 import com.ecommerce.inventory.event.PaymentFailedEvent;
+import com.ecommerce.inventory.event.ProductCreatedEvent;
 import com.ecommerce.inventory.service.InventoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Component;
  * Kafka consumers for inventory management.
  *
  * ─── Event Flow ───
+ * product-created → Create initial stock entry (idempotent)
  * order-created   → Reserve stock (availableStock ↓, reservedStock ↑)
  * payment-failed  → Rollback stock (reservedStock ↓, availableStock ↑)
  *
@@ -24,6 +26,32 @@ import org.springframework.stereotype.Component;
 public class OrderEventConsumer {
 
     private final InventoryService inventoryService;
+
+    /**
+     * Consumes "product-created" events.
+     * Auto-creates initial inventory stock entry for the new product.
+     *
+     * ─── Idempotency ───
+     * If inventory already exists for this productId, the event is a duplicate
+     * (Kafka retry) and is silently skipped. No duplicate stock entries.
+     */
+    @KafkaListener(topics = "product-created", groupId = "inventory-service-group")
+    public void handleProductCreated(ProductCreatedEvent event) {
+        log.info("Received product-created event: productId={}, vendorId={}, stock={}",
+                event.getProductId(), event.getVendorId(), event.getStock());
+
+        try {
+            inventoryService.createInitialStock(
+                    event.getProductId(),
+                    event.getVendorId(),
+                    event.getStock() != null ? event.getStock() : 0
+            );
+        } catch (Exception e) {
+            log.error("Failed to create initial stock for productId={}: {}",
+                    event.getProductId(), e.getMessage());
+            throw e; // Rethrow so Kafka retry + DLQ can handle it
+        }
+    }
 
     /**
      * Consumes "order-created" events.

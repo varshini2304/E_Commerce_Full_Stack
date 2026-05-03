@@ -94,11 +94,14 @@ services:
       SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/product_db
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: 6379
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       SERVER_PORT: 8081
     depends_on:
       mongodb:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      kafka:
         condition: service_healthy
     networks:
       - ecommerce-net
@@ -157,6 +160,22 @@ services:
     networks:
       - ecommerce-net
 
+  vendor-service:
+    build: ./vendor-service
+    container_name: ecommerce-vendor-service
+    restart: unless-stopped
+    ports:
+      - "8085:8085"
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/vendor_db
+      APP_JWT_SECRET: f0e1d2c3b4a5968778695a4b3c2d1e0f9a8b7c6d5e4f3021a9b8c7d6e5f40312
+      SERVER_PORT: 8085
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - ecommerce-net
+
   api-gateway:
     build: ./api-gateway
     container_name: ecommerce-api-gateway
@@ -185,13 +204,34 @@ services:
       SPRING_CLOUD_GATEWAY_ROUTES_5_URI: http://order-service:8082
       SPRING_CLOUD_GATEWAY_ROUTES_5_PREDICATES_0: Path=/api/cart/**
       SPRING_CLOUD_GATEWAY_ROUTES_5_ID: cart-service
+      SPRING_CLOUD_GATEWAY_ROUTES_6_URI: http://monolith:8000
+      SPRING_CLOUD_GATEWAY_ROUTES_6_PREDICATES_0: Path=/api/auth/**,/api/users/**,/api/reviews/**,/api/site/**,/api/home/**
+      SPRING_CLOUD_GATEWAY_ROUTES_6_ID: monolith-auth
+      SPRING_CLOUD_GATEWAY_ROUTES_7_URI: http://vendor-service:8085
+      SPRING_CLOUD_GATEWAY_ROUTES_7_PREDICATES_0: Path=/api/vendors/**
+      SPRING_CLOUD_GATEWAY_ROUTES_7_ID: vendor-service
     depends_on:
       - product-service
       - order-service
       - payment-service
       - inventory-service
+      - vendor-service
+      - monolith
     networks:
       - ecommerce-net
+
+  monolith:
+    build: ../server-spring
+    container_name: ecommerce-monolith
+    ports:
+      - "8000:8000"
+    environment:
+      - SERVER_PORT=8000
+      - SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/ecommerce_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    networks:
+      - ecommerce-net
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 # ══════════════════════════════════════════════
 #  VOLUMES & NETWORKS

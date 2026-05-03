@@ -3,6 +3,8 @@ package com.ecommerce.product.service;
 import com.ecommerce.product.dto.ProductRequest;
 import com.ecommerce.product.dto.ProductResponse;
 import com.ecommerce.product.dto.StockUpdateRequest;
+import com.ecommerce.product.event.ProductCreatedEvent;
+import com.ecommerce.product.exception.BadRequestException;
 import com.ecommerce.product.exception.ConflictException;
 import com.ecommerce.product.exception.ResourceNotFoundException;
 import com.ecommerce.product.model.Product;
@@ -19,11 +21,20 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.*;
 
+/**
+ * Product service with vendor ownership, caching, and Kafka event publishing.
+ *
+ * ─── Security Model ───
+ * - vendorId is ALWAYS taken from the X-User-Id header (set by gateway)
+ * - NEVER from the request body (prevents spoofing)
+ * - Update/delete operations validate vendor ownership
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -31,15 +42,18 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final MongoTemplate mongoTemplate;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     /**
      * List products with pagination, filtering, and sorting.
+     * Supports optional vendorId filter for vendor-specific product listing.
      * Cached in Redis with 60-second TTL.
      */
     @Cacheable(value = "products",
-            key = "#page + '-' + #limit + '-' + #category + '-' + #minPrice + '-' + #maxPrice + '-' + #rating + '-' + #search + '-' + #sort")
+            key = "#page + '-' + #limit + '-' + #category + '-' + #minPrice + '-' + #maxPrice + '-' + #rating + '-' + #search + '-' + #sort + '-' + #vendorId")
     public Map<String, Object> listProducts(int page, int limit, String category, BigDecimal minPrice,
-                                             BigDecimal maxPrice, BigDecimal rating, String search, String sort) {
+                                             BigDecimal maxPrice, BigDecimal rating, String search, String sort,
+                                             String vendorId) {
         Query query = new Query();
         query.addCriteria(Criteria.where("isActive").is(true));
 
@@ -57,6 +71,9 @@ public class ProductService {
         }
         if (search != null && !search.isBlank()) {
             query.addCriteria(Criteria.where("name").regex(search, "i"));
+        }
+        if (vendorId != null && !vendorId.isBlank()) {
+            query.addCriteria(Criteria.where("vendorId").is(vendorId));
         }
 
         long total = mongoTemplate.count(query, Product.class);
@@ -103,14 +120,23 @@ public class ProductService {
 
     /**
      * Create a new product.
+     *
+     * ─── Security ───
+     * vendorId comes from the trusted X-User-Id header (gateway-validated).
+     * After saving, publishes "product-created" Kafka event for Inventory Service.
      */
     @CacheEvict(value = "products", allEntries = true)
-    public ProductResponse createProduct(ProductRequest request) {
+    public ProductResponse createProduct(ProductRequest request, String vendorId) {
+        if (vendorId == null || vendorId.isBlank()) {
+            throw new BadRequestException("Vendor identity is required to create a product");
+        }
+
         if (productRepository.existsBySku(request.getSku())) {
             throw new ConflictException("SKU already exists");
         }
 
         Product product = Product.builder()
+                .vendorId(vendorId)
                 .name(request.getName())
                 .slug(request.getSlug())
                 .description(request.getDescription())
@@ -128,17 +154,30 @@ public class ProductService {
                 .build();
 
         product = productRepository.save(product);
-        log.info("Product created: {} (SKU: {})", product.getName(), product.getSku());
+        log.info("Product created by vendor {}: {} (SKU: {})", vendorId, product.getName(), product.getSku());
+
+        // Publish Kafka event for Inventory Service to create initial stock
+        publishProductCreatedEvent(product);
+
         return toResponse(product);
     }
 
     /**
      * Update an existing product.
+     *
+     * ─── Security ───
+     * Validates that the requesting vendor (X-User-Id) owns the product.
+     * Prevents vendor A from editing vendor B's products.
      */
     @CacheEvict(value = "products", allEntries = true)
-    public ProductResponse updateProduct(String id, ProductRequest request) {
+    public ProductResponse updateProduct(String id, ProductRequest request, String vendorId) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+
+        // Ownership validation: vendor can only update their own products
+        if (vendorId != null && !vendorId.equals(product.getVendorId())) {
+            throw new BadRequestException("You can only update your own products");
+        }
 
         product.setName(request.getName());
         product.setSlug(request.getSlug());
@@ -156,34 +195,71 @@ public class ProductService {
         if (request.getTags() != null) product.setTags(request.getTags());
 
         product = productRepository.save(product);
-        log.info("Product updated: {} (ID: {})", product.getName(), product.getId());
+        log.info("Product updated by vendor {}: {} (ID: {})", vendorId, product.getName(), product.getId());
         return toResponse(product);
     }
 
     /**
      * Soft-delete a product.
+     * Validates vendor ownership before deletion.
      */
     @CacheEvict(value = "products", allEntries = true)
-    public ProductResponse deleteProduct(String id) {
+    public ProductResponse deleteProduct(String id, String vendorId) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+
+        // Ownership validation
+        if (vendorId != null && !vendorId.equals(product.getVendorId())) {
+            throw new BadRequestException("You can only delete your own products");
+        }
+
         product.setIsActive(false);
         product = productRepository.save(product);
-        log.info("Product soft-deleted: {} (ID: {})", product.getName(), product.getId());
+        log.info("Product soft-deleted by vendor {}: {} (ID: {})", vendorId, product.getName(), product.getId());
         return toResponse(product);
     }
 
     /**
      * Update product stock.
+     * Validates vendor ownership.
      */
     @CacheEvict(value = "products", allEntries = true)
-    public ProductResponse updateStock(String id, StockUpdateRequest request) {
+    public ProductResponse updateStock(String id, StockUpdateRequest request, String vendorId) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+
+        // Ownership validation
+        if (vendorId != null && !vendorId.equals(product.getVendorId())) {
+            throw new BadRequestException("You can only update stock for your own products");
+        }
+
         product.setStock(request.getStock());
         product = productRepository.save(product);
-        log.info("Stock updated for product {} to {}", product.getId(), request.getStock());
+        log.info("Stock updated by vendor {} for product {} to {}", vendorId, product.getId(), request.getStock());
         return toResponse(product);
+    }
+
+    /**
+     * Publish product-created event to Kafka.
+     * Inventory Service consumes this to auto-create initial stock entry.
+     */
+    private void publishProductCreatedEvent(Product product) {
+        try {
+            ProductCreatedEvent event = ProductCreatedEvent.builder()
+                    .productId(product.getId())
+                    .vendorId(product.getVendorId())
+                    .name(product.getName())
+                    .sku(product.getSku())
+                    .stock(product.getStock())
+                    .price(product.getPrice())
+                    .build();
+
+            kafkaTemplate.send("product-created", product.getId(), event);
+            log.info("Published product-created event: productId={}, vendorId={}", product.getId(), product.getVendorId());
+        } catch (Exception e) {
+            // Log but don't fail product creation — inventory can be created manually
+            log.error("Failed to publish product-created event for productId={}: {}", product.getId(), e.getMessage());
+        }
     }
 
     /**
@@ -192,6 +268,7 @@ public class ProductService {
     private ProductResponse toResponse(Product product) {
         return ProductResponse.builder()
                 .id(product.getId())
+                .vendorId(product.getVendorId())
                 .name(product.getName())
                 .slug(product.getSlug())
                 .description(product.getDescription())

@@ -56,6 +56,14 @@ public class KafkaConfig {
                 .build();
     }
 
+    @Bean
+    public NewTopic productCreatedDltTopic() {
+        return TopicBuilder.name("product-created.DLT")
+                .partitions(1)
+                .replicas(1)
+                .build();
+    }
+
     // ── Consumer Factory ──
 
     @Bean
